@@ -28,13 +28,14 @@ namespace mining_foreman_backend.Controllers {
         }
 
         [HttpPost("end")]
-        public void EndMiningFleet() {
+        public void EndMiningFleet([FromBody] Models.MiningFleet fleet) {
             var characterId = int.Parse(Request.Cookies["CharacterId"]);
             var userKey = DataAccess.User.SelectUserKeyByCharacterId(characterId);
-            
+
             //Set IsActive to 0 on the mining fleet
-            //Loop through the mining fleet members and set the end fleet ledger
-            //Calculate the fleets totals and save that in a seperatez table.
+            DataAccess.Fleet.EndMiningFleet(fleet.MiningFleetKey);
+            //Loop through the mining fleet members and calculate the diffzserences of the mining ledger and calculate the difference and put that as the 'ending' mining fleet ledger
+            DataAccess.MiningLedger.InsertEndingFleetMiningLedget(fleet.MiningFleetKey);
         }
     }
 }

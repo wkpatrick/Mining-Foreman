@@ -8,7 +8,7 @@ namespace mining_foreman_backend.DataAccess {
         public static List<Models.MiningFleet> SelectActiveFleets() {
             using (var conn = ConnectionFactory()) {
                 conn.Open();
-                return conn.Query<Models.MiningFleet>(@" SELECT * FROM MiningFleets WHERE IsActive = TRUE").ToList();
+                return conn.Query<Models.MiningFleet>(@" SELECT * FROM MiningFleets WHERE IsActive = TRUE ORDER BY MiningFleetKey DESC").ToList();
             }
         }
 
@@ -22,6 +22,14 @@ namespace mining_foreman_backend.DataAccess {
                         FleetBossKey = fleet.FleetBossKey, StartTime = fleet.StartTime, EndTime = fleet.EndTime,
                         IsActive = fleet.IsActive
                     });
+            }
+        }
+
+        public static void EndMiningFleet(int miningFleetKey) {
+            using (var conn = ConnectionFactory()) {
+                conn.Open();
+                conn.Execute(@"UPDATE MiningFleets SET IsActive = FALSE, EndTime = now() WHERE MiningFleetKey = @MiningFleetKey",
+                    new {MiningFleetKey = miningFleetKey});
             }
         }
 

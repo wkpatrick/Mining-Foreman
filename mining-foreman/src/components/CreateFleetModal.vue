@@ -23,7 +23,7 @@
         methods: {
             async createNewFleet() {
                 try {
-                    const response = await fetch('/api/fleet', {
+                    const response = await fetch('/api/fleet/start', {
                         method: 'POST',
                         credentials: 'include'
                     });
