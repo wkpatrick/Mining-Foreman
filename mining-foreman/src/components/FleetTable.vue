@@ -40,13 +40,13 @@
             }
         },
         computed: {
-            fleetSelected(){
+            fleetSelected() {
                 return this.selected !== null;
             }
         },
         methods: {
             clickedFleet() {
-                this.$router.push({name: 'fleet', params: { id: this.selected.miningFleetKey, fleet: this.selected}})
+                this.$router.push({name: 'fleet', params: {id: this.selected.miningFleetKey}})
             },
             openCreateFleetModal() {
                 this.$buefy.modal.open({

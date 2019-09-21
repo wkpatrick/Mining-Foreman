@@ -10,6 +10,12 @@ namespace mining_foreman_backend.Controllers {
             return DataAccess.Fleet.SelectActiveFleets();
         }
 
+        [HttpGet("{fleetKey}")]
+        public Models.MiningFleet GetFleetInfo(int fleetKey) {
+            var fleet = DataAccess.Fleet.SelectFleet(fleetKey);
+            return fleet;
+        }
+
         [HttpPost("start")]
         public void CreateMiningFleet() {
             

@@ -12,6 +12,13 @@ namespace mining_foreman_backend.DataAccess {
             }
         }
 
+        public static Models.MiningFleet SelectFleet(int fleetKey) {
+            using (var conn = ConnectionFactory()) {
+                conn.Open();
+                return conn.QueryFirst<Models.MiningFleet>(@" SELECT * FROM MiningFleets WHERE MiningFleetKey = @FleetKey", new {FleetKey = fleetKey});
+            }
+        }
+
         public static int InsertMiningFleet(Models.MiningFleet fleet) {
             using (var conn = ConnectionFactory()) {
                 conn.Open();
