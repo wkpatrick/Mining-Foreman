@@ -15,8 +15,20 @@ namespace mining_foreman_backend.DataAccess {
         public static Models.MiningFleet SelectFleet(int fleetKey) {
             using (var conn = ConnectionFactory()) {
                 conn.Open();
-                return conn.QueryFirst<Models.MiningFleet>(@" SELECT * FROM MiningFleets WHERE MiningFleetKey = @FleetKey", new {FleetKey = fleetKey});
+                var fleet =  conn.QueryFirst<Models.MiningFleet>(@" SELECT * FROM MiningFleets WHERE MiningFleetKey = @MiningFleetKey", new {MiningFleetKey = fleetKey});
+                fleet.FleetMembers =
+                    conn.Query<Models.MiningFleetMember>(
+                        @"SELECT DISTINCT mfm.UserKey, mfm.MiningFleetMemberKey, MiningFleetKey FROM MiningFleetMembers mfm WHERE MiningFleetKey = @MiningFleetKey", new{MiningFleetKey = fleetKey}).ToList();
+                foreach (var member in fleet.FleetMembers) {
+                    member.MemberMiningLedger = MiningLedger.SelectFleetProductionByUser(member.UserKey, fleetKey);
+                }
+                return fleet;
             }
+        }
+
+        //TODO: Selects a single fleet member's contributions.
+        public static void SelectFleetMember(int fleetKey, int userKey) {
+            
         }
 
         public static int InsertMiningFleet(Models.MiningFleet fleet) {

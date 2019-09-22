@@ -96,6 +96,7 @@ $$
                 UserKey              int NOT NULL
             );
 
+            --TODO: Switch FLeetKey to MiningFleetKey to match the rest of the schema
             CREATE TABLE public.MiningFleetLedger
             (
                 MiningFleetLedgerKey serial PRIMARY KEY,
@@ -112,3 +113,4 @@ $$
 
         END IF;
     END
+$$;

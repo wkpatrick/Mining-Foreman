@@ -16,6 +16,12 @@ namespace mining_foreman_backend.Controllers {
             return fleet;
         }
 
+        [HttpGet("{fleetKey}/member")]
+        public void GetFleetMemberInfo(int fleetKey) {
+            //Pull the token from the cookies and use it to get the UserKeyzs
+            DataAccess.Fleet.SelectFleetMember(1, 1);
+        }
+
         [HttpPost("start")]
         public void CreateMiningFleet() {
             
@@ -41,7 +47,7 @@ namespace mining_foreman_backend.Controllers {
             //Set IsActive to 0 on the mining fleet
             DataAccess.Fleet.EndMiningFleet(fleet.MiningFleetKey);
             //Loop through the mining fleet members and calculate the diffzserences of the mining ledger and calculate the difference and put that as the 'ending' mining fleet ledger
-            DataAccess.MiningLedger.InsertEndingFleetMiningLedget(fleet.MiningFleetKey);
+            DataAccess.MiningLedger.InsertEndingFleetMiningLedger(fleet.MiningFleetKey);
         }
     }
 }
