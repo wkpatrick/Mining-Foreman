@@ -17,4 +17,9 @@ namespace mining_foreman_backend.Models {
         public int UserKey { get; set; }
         public List<MiningFleetLedger> MemberMiningLedger { get; set; }
     }
+
+    public class MiningFleetResponse {
+        public MiningFleet FleetInfo { get; set; }
+        public MiningFleetMember MemberInfo { get; set; }
+    }
 }

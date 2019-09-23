@@ -20,15 +20,33 @@ namespace mining_foreman_backend.DataAccess {
                     conn.Query<Models.MiningFleetMember>(
                         @"SELECT DISTINCT mfm.UserKey, mfm.MiningFleetMemberKey, MiningFleetKey FROM MiningFleetMembers mfm WHERE MiningFleetKey = @MiningFleetKey", new{MiningFleetKey = fleetKey}).ToList();
                 foreach (var member in fleet.FleetMembers) {
-                    member.MemberMiningLedger = MiningLedger.SelectFleetProductionByUser(member.UserKey, fleetKey);
+                    if (fleet.IsActive) {
+                        member.MemberMiningLedger = MiningLedger.SelectActiveFleetProductionByUser(member.UserKey, fleetKey);
+                    }
+                    else {
+                        member.MemberMiningLedger = MiningLedger.SelectFinishedFleetProductionByUser(member.UserKey, fleetKey);
+                    }
                 }
                 return fleet;
             }
         }
 
         //TODO: Selects a single fleet member's contributions.
-        public static void SelectFleetMember(int fleetKey, int userKey) {
-            
+        public static Models.MiningFleetMember SelectFleetMember(int fleetKey, int userKey) {
+            using (var conn = ConnectionFactory()) {
+                conn.Open();
+                //Ideally I would like to not have to pull in the whole fleet here to 
+                var fleet =  conn.QueryFirst<Models.MiningFleet>(@" SELECT * FROM MiningFleets WHERE MiningFleetKey = @MiningFleetKey", new {MiningFleetKey = fleetKey});
+                var member = conn.QuerySingle<Models.MiningFleetMember>(
+                    @"SELECT mfm.UserKey, mfm.MiningFleetMemberKey, MiningFleetKey FROM MiningFleetMembers mfm WHERE MiningFleetKey = @MiningFleetKey AND UserKey = @UserKey", new{MiningFleetKey = fleetKey, UserKey = userKey});
+                if (fleet.IsActive) {
+                    member.MemberMiningLedger = MiningLedger.SelectActiveFleetProductionByUser(member.UserKey, fleetKey);
+                }
+                else {
+                    member.MemberMiningLedger = MiningLedger.SelectFinishedFleetProductionByUser(member.UserKey, fleetKey);
+                }
+                return member;
+            }
         }
 
         public static int InsertMiningFleet(Models.MiningFleet fleet) {

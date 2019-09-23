@@ -11,20 +11,17 @@ namespace mining_foreman_backend.Controllers {
         }
 
         [HttpGet("{fleetKey}")]
-        public Models.MiningFleet GetFleetInfo(int fleetKey) {
-            var fleet = DataAccess.Fleet.SelectFleet(fleetKey);
+        public Models.MiningFleetResponse GetFleetInfo(int fleetKey) {
+            var user = DataAccess.User.SelectUserByAPIToken(Request.Cookies["APIToken"]);
+            var fleet = new Models.MiningFleetResponse {
+                FleetInfo = DataAccess.Fleet.SelectFleet(fleetKey),
+                MemberInfo = DataAccess.Fleet.SelectFleetMember(fleetKey,user.UserKey)
+            };
             return fleet;
-        }
-
-        [HttpGet("{fleetKey}/member")]
-        public void GetFleetMemberInfo(int fleetKey) {
-            //Pull the token from the cookies and use it to get the UserKeyzs
-            DataAccess.Fleet.SelectFleetMember(1, 1);
         }
 
         [HttpPost("start")]
         public void CreateMiningFleet() {
-            
             var characterId = int.Parse(Request.Cookies["CharacterId"]);
             var userKey = DataAccess.User.SelectUserKeyByCharacterId(characterId);
             var fleet = new Models.MiningFleet {
@@ -33,7 +30,7 @@ namespace mining_foreman_backend.Controllers {
                 EndTime = DateTime.MaxValue,
                 IsActive = true
             };
-            
+
             fleet.MiningFleetKey = DataAccess.Fleet.InsertMiningFleet(fleet);
             DataAccess.Fleet.InsertMiningFleetMember(userKey, fleet.MiningFleetKey);
             DataAccess.MiningLedger.InsertStartingFleetMiningLedger(userKey);

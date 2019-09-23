@@ -12,13 +12,22 @@ namespace mining_foreman_backend.DataAccess {
             }
         }
 
-        public static List<Models.MiningFleetLedger> SelectFleetProductionByUser(int userKey, int miningFleetKey) {
+        public static List<Models.MiningFleetLedger> SelectActiveFleetProductionByUser(int userKey, int miningFleetKey) {
             using (var conn = ConnectionFactory()) {
                 conn.Open();
                 return conn.Query<Models.MiningFleetLedger>(@"
                 SELECT mfl.MiningFleetLedgerKey, mfl.FleetKey, mfl.UserKey, ml.Date,(ml.quantity - mfl.quantity) as Quantity, ml.SolarSystemId, ml.TypeId, mfl.IsStartingLedger FROM MiningFleetLedger mfl
                 JOIN MiningLedger ml ON mfl.userkey = ml.userkey AND mfl.typeid = ml.typeid AND mfl.solarsystemid = ml.solarsystemid AND mfl.date = ml.date
-                WHERE mfl.fleetkey = @MiningFleetKey AND mfl.UserKey = @UserKey AND mfl.IsStartingLedger = false",
+                WHERE mfl.fleetkey = @MiningFleetKey AND mfl.UserKey = @UserKey AND mfl.IsStartingLedger = true",
+                    new {MiningFleetKey = miningFleetKey, UserKey = userKey}).ToList();
+            }
+        }
+
+        public static List<Models.MiningFleetLedger> SelectFinishedFleetProductionByUser(int userKey, int miningFleetKey) {
+            using (var conn = ConnectionFactory()) {
+                conn.Open();
+                return conn.Query<Models.MiningFleetLedger>(@"
+                SELECT * FROM MiningFleetLedger WHERE FleetKey = @MiningFleetKey AND UserKey = @UserKey AND IsStartingLedger = false",
                     new {MiningFleetKey = miningFleetKey, UserKey = userKey}).ToList();
             }
         }

@@ -2,6 +2,10 @@
     <div>
         <h1>Issa fleet</h1>
         <div class="box" style="width: 80%">
+            <h1>Total Fleet Output</h1>
+        </div>
+        <div class="box" style="width: 80%">
+            <h1>Your Output</h1>
             <article class="media">
                 <div class="media-left">
                     <figure class="media-left image is-128x128">
@@ -38,11 +42,14 @@
                         </div>
                     </div>
                     <div class="column">
-                        <b-table :columns="columns" :data="fleet.fleetMembers[0].memberMiningLedger"></b-table>
+                        <b-table v-if="fleetLoaded" :columns="columns"
+                                 :data="fleet.memberInfo.memberMiningLedger"></b-table>
                     </div>
                 </div>
-
             </article>
+        </div>
+        <div class="box" style="width: 80%">
+            <h1>Total Detailed Fleet Output</h1>
         </div>
         <b-button type="is-success" @click="endFleet"> End Fleet</b-button>
     </div>
@@ -54,6 +61,7 @@
         data() {
             return {
                 fleet: {},
+                fleetLoaded: false,
                 columns: [
                     {
                         field: 'typeId',
@@ -100,6 +108,7 @@
                         })
                         .then(function (json) {
                             self.fleet = json;
+                            self.fleetLoaded = true;
                             setTimeout(self.getFleet, 5000)
                         })
                 } catch (error) {

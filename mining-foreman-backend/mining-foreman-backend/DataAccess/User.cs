@@ -14,12 +14,29 @@ namespace mining_foreman_backend.DataAccess {
             }
         }
 
+        public static Models.User SelectUserByAPIToken(string apiToken) {
+            using (var conn = ConnectionFactory()) {
+                conn.Open();
+                return conn.QuerySingle<Models.User>(
+                    @"SELECT * FROM Users WHERE APIToken = @APIToken",
+                    new {APIToken = apiToken});
+            }
+        }
+
         public static long InsertUser(Models.User user) {
             using (var conn = ConnectionFactory()) {
                 conn.Open();
                 return conn.Execute(
                     @"INSERT INTO Users (CharacterId, AccessToken, RefreshToken, RefreshTokenExpiresUtc) VALUES(@CharacterId, @AccessToken, @RefreshToken, @RefreshTokenExpiresUTC)",
                     user);
+            }
+        }
+
+        public static void UpdateUser(Models.User user) {
+            using (var conn = ConnectionFactory()) {
+                conn.Open();
+                conn.Execute(
+                    @"UPDATE Users SET CharacterId = @CharacterId, AccessToken = @AccessToken, RefreshToken = @RefreshToken, RefreshTokenExpiresUTC = @RefreshTokenExpiresUTC, APIToken = @APIToken", user);
             }
         }
 

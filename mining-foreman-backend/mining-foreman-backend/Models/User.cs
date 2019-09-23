@@ -10,6 +10,7 @@ namespace mining_foreman_backend.Models {
         public string AccessToken { get; set; }
         public string RefreshToken { get; set; }
         public DateTime RefreshTokenExpiresUTC { get; set; }
+        public string APIToken { get; set; }
         public string CharacterName { get; set; }
         public string CorporationName { get; set; }
         public string CharacterLocation { get; set; }

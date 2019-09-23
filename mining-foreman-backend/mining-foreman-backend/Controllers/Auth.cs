@@ -47,7 +47,7 @@ namespace mining_foreman_backend.Controllers {
 
         public async Task<IActionResult> Logout() {
             await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
-            return Redirect("localhost:5000");
+            return Redirect("localhost");
         }
 
         [HttpGet("Callback")]
@@ -65,24 +65,31 @@ namespace mining_foreman_backend.Controllers {
 
             //The user does not exist in the db
             if (dbUser == null) {
-                dbUser = new Models.User() {
+                dbUser = new Models.User {
                     CharacterId = character.CharacterId,
                     AccessToken = accessToken.AccessToken,
                     RefreshToken = accessToken.RefreshToken,
                     RefreshTokenExpiresUTC = accessToken.ExpiresUtc,
-                    CharacterName = character.CharacterName
+                    CharacterName = character.CharacterName,
+                    APIToken = Guid.NewGuid().ToString()
                 };
 
                 DataAccess.User.InsertUser(dbUser);
             }
-            
-            Response.Cookies.Append("CharacterId", dbUser.CharacterId.ToString());
+            else {
+                dbUser.AccessToken = accessToken.AccessToken;
+                dbUser.RefreshToken = accessToken.RefreshToken;
+                dbUser.RefreshTokenExpiresUTC = accessToken.ExpiresUtc;
+                if (dbUser.APIToken == null) {
+                    dbUser.APIToken = Guid.NewGuid().ToString();
+                }
+                DataAccess.User.UpdateUser(dbUser);
+            }
+            Response.Cookies.Append("APIToken", dbUser.APIToken);
 
             await SignInAsync(accessToken, character);
 
             if (Guid.TryParse(state, out Guid stateGuid)) {
-                Console.Out.WriteLine("SUCCESS");
-                //return RedirectToAction("Index", "Home");
                 return Redirect("http://localhost");
             }
             else {
