@@ -3,6 +3,13 @@
         <h1>Issa fleet</h1>
         <div class="box" style="width: 80%">
             <h1>Total Fleet Output</h1>
+            <b-table v-if="fleetLoaded" :data="fleet.fleetTotal">
+                <template slot-scope="props">
+                    <b-table-column><img :src="props.row.imgUrl"> </b-table-column>
+                    <b-table-column label="Ore">{{props.row.typeId}}</b-table-column>
+                    <b-table-column label="Quantity" field="quantity"> {{props.row.quantity}}</b-table-column>
+                </template>
+            </b-table>
         </div>
         <div class="box" style="width: 80%">
             <h1>Your Output</h1>
@@ -50,6 +57,10 @@
         </div>
         <div class="box" style="width: 80%">
             <h1>Total Detailed Fleet Output</h1>
+            <b-table v-if="fleetLoaded" :columns= "fleetColumns"
+                     :data="fleet.fleetInfo.fleetMembers"
+                     :narrowed="true">
+            </b-table>
         </div>
         <b-button type="is-success" @click="endFleet"> End Fleet</b-button>
     </div>
@@ -75,6 +86,20 @@
                         field: 'quantity',
                         label: 'Quantity'
                     }
+                ],
+                fleetColumns: [
+                    {
+                        field: 'miningFleetMemberKey',
+                        label: 'Member Key'
+                    },
+                    {
+                        field: 'userKey',
+                        label: 'User Key'
+                    },
+                    {
+                        field: 'memberMiningLedger',
+                        label: 'test'
+                    }
                 ]
             }
         },
@@ -87,7 +112,7 @@
                     const response = await fetch('/api/fleet/end', {
                         method: 'POST',
                         credentials: 'include',
-                        body: JSON.stringify(this.fleet),
+                        body: JSON.stringify(this.fleet.fleetInfo),
                         headers: {'Content-type': 'application/json'}
                     });
                     const data = await response.json();
@@ -107,13 +132,19 @@
                             return response.json();
                         })
                         .then(function (json) {
-                            self.fleet = json;
+                            self.fleet = self.modifyData(json);
                             self.fleetLoaded = true;
                             setTimeout(self.getFleet, 5000)
                         })
                 } catch (error) {
                     //console.error(error)
                 }
+            },
+            modifyData(member){
+                member.fleetTotal.forEach(function(element){
+                    element.imgUrl = 'https://imageserver.eveonline.com/Type/' + element.typeId + '_32.png';
+                });
+                return member;
             }
         }
     }

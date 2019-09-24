@@ -1,5 +1,6 @@
 <template>
     <div>
+        //TODO: Move IsLoggedIn to the main app
         <div class="hello" v-if="!isLoggedIn">
             <h1>{{msgText}}</h1>
             <a href="api/auth/login"><img
@@ -32,7 +33,7 @@
         },
         computed: {
             isLoggedIn() {
-                return this.$cookies.isKey('.AspNetCore.Cookies');
+                return this.$cookies.isKey('APIToken');
             },
             msgText() {
                 if (this.isLoggedIn) {

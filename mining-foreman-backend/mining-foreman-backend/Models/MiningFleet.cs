@@ -21,5 +21,6 @@ namespace mining_foreman_backend.Models {
     public class MiningFleetResponse {
         public MiningFleet FleetInfo { get; set; }
         public MiningFleetMember MemberInfo { get; set; }
+        public List<FleetTotal> FleetTotal { get; set; }
     }
 }

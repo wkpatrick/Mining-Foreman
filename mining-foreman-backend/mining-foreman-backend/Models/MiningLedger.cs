@@ -20,4 +20,9 @@ namespace mining_foreman_backend.Models {
         public int TypeId { get; set; }
         public bool IsStartingLedger { get; set; }
     }
+
+    public class FleetTotal {
+        public int TypeId { get; set; }
+        public int Quantity { get; set; }
+    }
 }

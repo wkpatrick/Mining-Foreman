@@ -30,8 +30,7 @@ namespace mining_foreman_backend.DataAccess {
                 return fleet;
             }
         }
-
-        //TODO: Selects a single fleet member's contributions.
+        
         public static Models.MiningFleetMember SelectFleetMember(int fleetKey, int userKey) {
             using (var conn = ConnectionFactory()) {
                 conn.Open();
@@ -65,7 +64,7 @@ namespace mining_foreman_backend.DataAccess {
         public static void EndMiningFleet(int miningFleetKey) {
             using (var conn = ConnectionFactory()) {
                 conn.Open();
-                conn.Execute(@"UPDATE MiningFleets SET IsActive = FALSE, EndTime = now() WHERE MiningFleetKey = @MiningFleetKey",
+                conn.Execute(@"UPDATE MiningFleets SET IsActive = FALSE, EndTime = now() at time zone 'utc' WHERE MiningFleetKey = @MiningFleetKey",
                     new {MiningFleetKey = miningFleetKey});
             }
         }

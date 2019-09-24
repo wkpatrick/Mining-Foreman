@@ -85,7 +85,9 @@ namespace mining_foreman_backend.Controllers {
                 }
                 DataAccess.User.UpdateUser(dbUser);
             }
-            Response.Cookies.Append("APIToken", dbUser.APIToken);
+
+            Response.Cookies.Append("APIToken", dbUser.APIToken,
+                new CookieOptions {Expires = DateTimeOffset.Now.AddDays(7)});
 
             await SignInAsync(accessToken, character);
 
