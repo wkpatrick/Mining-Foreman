@@ -5,9 +5,8 @@ namespace mining_foreman_backend.Controllers {
     public class User : Controller {
         // GET
         public Models.User Index() {
-            HttpContext.Session.ToString();
-            var test = Request.Cookies["UserKey"];
-            return null;
+            var user = DataAccess.User.SelectUserByAPIToken(Request.Cookies["APIToken"]);
+            return user;
         }
     }
 }

@@ -9,6 +9,7 @@ namespace mining_foreman_backend.Models {
         public DateTime EndTime { get; set; }
         public bool IsActive { get; set; }
         public List<MiningFleetMember> FleetMembers { get; set; }
+        public bool IsFleetBoss { get; set; }
     }
 
     public class MiningFleetMember {

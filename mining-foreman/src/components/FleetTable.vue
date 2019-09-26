@@ -14,7 +14,8 @@
     export default {
         name: "FleetTable",
         props: {
-            fleets: Array
+            fleets: Array,
+            activeFleetKey: Number
         },
         data() {
             return {
@@ -39,9 +40,21 @@
                 selected: null
             }
         },
+        created: function () {
+            this.selectActiveFleet();
+        },
         computed: {
             fleetSelected() {
                 return this.selected !== null;
+            }
+        },
+        watch: {
+            //This way we can pre-select the active fleet of the table
+            //Since we load the fleets async, we need to watch the prop instead
+            fleets: function () {
+                if(this.fleetSelected === false){
+                    this.selectActiveFleet()
+                }
             }
         },
         methods: {
@@ -54,11 +67,18 @@
                     component: CreateFleetModal,
                     hasModalCard: true
                 })
+            },
+            selectActiveFleet(){
+                let self = this;
+                this.fleets.forEach(function(fleet){
+                    if(fleet.miningFleetKey === self.activeFleetKey){
+                        self.selected = fleet;
+                    }
+                })
             }
         }
     }
 </script>
 
 <style scoped>
-
 </style>

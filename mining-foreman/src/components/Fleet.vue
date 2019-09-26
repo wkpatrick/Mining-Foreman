@@ -1,9 +1,53 @@
 <template>
     <div>
         <h1>Issa fleet</h1>
-        <div class="box" style="width: 80%">
-            <h1>Total Fleet Output</h1>
-            <b-table v-if="fleetLoaded" :data="fleet.fleetTotal">
+        <div class="box" style="width: 80%" v-if="fleetLoaded">
+            <article class="media">
+                <div class="media-left">
+                    <figure class="media-left image is-128x128">
+                        <img src="https://bulma.io/images/placeholders/128x128.png">
+                        Fleet leader
+                    </figure>
+                </div>
+                <div class="media-content">
+                    <div class="level">
+                        <div class="level-left">
+                            <div class="level-item">
+                                <figure class="image is-64x64">
+                                    <img src="https://bulma.io/images/placeholders/64x64.png">
+                                    Fleet member 1
+                                </figure>
+                            </div>
+                            <div class="level-item">
+                                <figure class="image is-64x64">
+                                    <img src="https://bulma.io/images/placeholders/64x64.png">
+                                    Fleet member 2
+                                </figure>
+                            </div>
+                            <div class="level-item">
+                                <figure class="image is-64x64">
+                                    <img src="https://bulma.io/images/placeholders/64x64.png">
+                                    Fleet member 3
+                                </figure>
+                            </div>
+                            <div class="level-item">
+                                <figure class="image is-64x64">
+                                    <img src="https://bulma.io/images/placeholders/64x64.png">
+                                    Fleet member 4
+                                </figure>
+                            </div>
+                        </div>
+                        <div class="level-right">
+                            <div class="level-item">
+                                <b-button type="is-info">Join Fleet</b-button>
+                            </div>
+                        </div>
+                    </div>
+
+
+                </div>
+            </article>
+            <b-table :data="fleet.fleetTotal">
                 <template slot-scope="props">
                     <b-table-column><img :src="props.row.imgUrl"> </b-table-column>
                     <b-table-column label="Ore">{{props.row.typeId}}</b-table-column>
@@ -100,11 +144,15 @@
                         field: 'memberMiningLedger',
                         label: 'test'
                     }
-                ]
+                ],
+                fleetTimer: {}
             }
         },
-        mounted: function () {
+        created: function () {
             this.getFleet()
+        },
+        destroyed: function(){
+            window.clearTimeout(this.fleetTimer);
         },
         methods: {
             async endFleet() {
@@ -134,7 +182,7 @@
                         .then(function (json) {
                             self.fleet = self.modifyData(json);
                             self.fleetLoaded = true;
-                            setTimeout(self.getFleet, 5000)
+                            self.fleetTimer = setTimeout(self.getFleet, 5000)
                         })
                 } catch (error) {
                     //console.error(error)

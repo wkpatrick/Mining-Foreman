@@ -77,5 +77,16 @@ namespace mining_foreman_backend.DataAccess {
                     new {MiningFleetKey = fleetKey, UserKey = userKey});
             }
         }
+
+        public static int SelectActiveFleetByUserKey(int userKey) {
+            using (var conn = ConnectionFactory()) {
+                conn.Open();
+                return conn.QuerySingleOrDefault<int>(@"
+                SELECT mf.miningfleetkey FROM MiningFleetMembers mfm
+                JOIN MiningFleets mf ON mfm.MiningFleetKey = mf.MiningFleetKey
+                WHERE mfm.UserKey = @UserKey AND mf.IsActive = true ",
+                    new {UserKey = userKey});
+            }
+        }
     }
 }

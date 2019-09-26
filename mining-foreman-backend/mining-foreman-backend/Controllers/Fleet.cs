@@ -8,7 +8,15 @@ namespace mining_foreman_backend.Controllers {
     public class Fleet : Controller {
         [HttpGet]
         public List<Models.MiningFleet> Index() {
-            return DataAccess.Fleet.SelectActiveFleets();
+            var user = DataAccess.User.SelectUserByAPIToken(Request.Cookies["APIToken"]);
+            var fleets = DataAccess.Fleet.SelectActiveFleets();
+            foreach (var fleet in fleets) {
+                if (fleet.FleetBossKey == user.UserKey) {
+                    fleet.IsFleetBoss = true;
+                }
+            }
+
+            return fleets;
         }
 
         [HttpGet("{fleetKey}")]
@@ -25,23 +33,22 @@ namespace mining_foreman_backend.Controllers {
         [HttpPost("start")]
         public void CreateMiningFleet() {
             var user = DataAccess.User.SelectUserByAPIToken(Request.Cookies["APIToken"]);
-            var userKey = DataAccess.User.SelectUserKeyByCharacterId(user.CharacterId);
             var fleet = new Models.MiningFleet {
-                FleetBossKey = userKey,
+                FleetBossKey = user.UserKey,
                 StartTime = DateTime.Now,
                 EndTime = DateTime.MaxValue,
                 IsActive = true
             };
 
             fleet.MiningFleetKey = DataAccess.Fleet.InsertMiningFleet(fleet);
-            DataAccess.Fleet.InsertMiningFleetMember(userKey, fleet.MiningFleetKey);
-            DataAccess.MiningLedger.InsertStartingFleetMiningLedger(userKey, fleet.MiningFleetKey);
+            DataAccess.Fleet.InsertMiningFleetMember(user.UserKey, fleet.MiningFleetKey);
+            DataAccess.MiningLedger.InsertStartingFleetMiningLedger(user.UserKey, fleet.MiningFleetKey);
         }
 
         [HttpPost("end")]
         public void EndMiningFleet([FromBody] Models.MiningFleet fleet) {
             var apiToken = Request.Cookies["APIToken"];
-            var userKey = DataAccess.User.SelectUserByAPIToken(apiToken);
+            var user = DataAccess.User.SelectUserByAPIToken(apiToken);
 
             //Set IsActive to 0 on the mining fleet
             DataAccess.Fleet.EndMiningFleet(fleet.MiningFleetKey);

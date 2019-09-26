@@ -11,6 +11,7 @@ namespace mining_foreman_backend.Models {
         public string RefreshToken { get; set; }
         public DateTime RefreshTokenExpiresUTC { get; set; }
         public string APIToken { get; set; }
+        public int ActiveFleetKey { get; set; }
         public string CharacterName { get; set; }
         public string CorporationName { get; set; }
         public string CharacterLocation { get; set; }

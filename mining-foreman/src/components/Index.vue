@@ -8,7 +8,7 @@
         </div>
         <div v-if="isLoggedIn">
             <h1>{{msgText}}</h1>
-            <fleet-table :fleets="fleets"></fleet-table>
+            <fleet-table :fleets="fleets" :active-fleet-key="user.activeFleetKey"></fleet-table>
         </div>
     </div>
 </template>
@@ -25,11 +25,13 @@
         },
         data() {
             return {
-                fleets: []
+                fleets: [],
+                user: {}
             }
         },
         mounted() {
-            this.getFleets()
+            this.getFleets();
+            this.getUser();
         },
         computed: {
             isLoggedIn() {
@@ -40,9 +42,6 @@
                     return 'Is logged in'
                 }
                 return 'Not logged in'
-            },
-            test() {
-                return this.$cookies.keys()
             }
         },
         methods: {
@@ -54,6 +53,20 @@
                 } catch (error) {
                     //console.error(error)
                 }
+            },
+            async getUser() {
+                //TODO: With Vue you can .bind(this) so that it follows through. Need to do that here
+                let self = this;
+                fetch('/api/user', {
+                    method: 'GET',
+                    credentials: 'include'
+                })
+                    .then(function (response) {
+                        return response.json();
+                    })
+                    .then(function (json) {
+                        self.user = json
+                    })
             }
         }
     }

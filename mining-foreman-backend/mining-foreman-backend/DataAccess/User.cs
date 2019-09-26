@@ -1,7 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using Dapper;
-using EVEStandard.Models;
 
 namespace mining_foreman_backend.DataAccess {
     public class User : DataAccess {
@@ -17,9 +16,11 @@ namespace mining_foreman_backend.DataAccess {
         public static Models.User SelectUserByAPIToken(string apiToken) {
             using (var conn = ConnectionFactory()) {
                 conn.Open();
-                return conn.QuerySingle<Models.User>(
+                var user = conn.QuerySingle<Models.User>(
                     @"SELECT * FROM Users WHERE APIToken = @APIToken",
                     new {APIToken = apiToken});
+                user.ActiveFleetKey = Fleet.SelectActiveFleetByUserKey(user.UserKey);
+                return user;
             }
         }
 
@@ -27,7 +28,7 @@ namespace mining_foreman_backend.DataAccess {
             using (var conn = ConnectionFactory()) {
                 conn.Open();
                 return conn.Execute(
-                    @"INSERT INTO Users (CharacterId, AccessToken, RefreshToken, RefreshTokenExpiresUtc) VALUES(@CharacterId, @AccessToken, @RefreshToken, @RefreshTokenExpiresUTC)",
+                    @"INSERT INTO Users (CharacterId, AccessToken, RefreshToken, RefreshTokenExpiresUtc, APIToken) VALUES(@CharacterId, @AccessToken, @RefreshToken, @RefreshTokenExpiresUTC, @APIToken)",
                     user);
             }
         }
@@ -36,7 +37,7 @@ namespace mining_foreman_backend.DataAccess {
             using (var conn = ConnectionFactory()) {
                 conn.Open();
                 conn.Execute(
-                    @"UPDATE Users SET CharacterId = @CharacterId, AccessToken = @AccessToken, RefreshToken = @RefreshToken, RefreshTokenExpiresUTC = @RefreshTokenExpiresUTC, APIToken = @APIToken", user);
+                    @"UPDATE Users SET CharacterId = @CharacterId, AccessToken = @AccessToken, RefreshToken = @RefreshToken, RefreshTokenExpiresUTC = @RefreshTokenExpiresUTC, APIToken = @APIToken WHERE UserKey = @UserKey", user);
             }
         }
 
