@@ -65,12 +65,12 @@ namespace mining_foreman_backend.Controllers {
 
             //The user does not exist in the db
             if (dbUser == null) {
-                dbUser = new Models.User {
+                dbUser = new Models.Database.User {
                     CharacterId = character.CharacterId,
+                    CharacterName = character.CharacterName,
                     AccessToken = accessToken.AccessToken,
                     RefreshToken = accessToken.RefreshToken,
                     RefreshTokenExpiresUTC = accessToken.ExpiresUtc,
-                    CharacterName = character.CharacterName,
                     APIToken = Guid.NewGuid().ToString()
                 };
 
@@ -83,6 +83,8 @@ namespace mining_foreman_backend.Controllers {
                 if (dbUser.APIToken == null) {
                     dbUser.APIToken = Guid.NewGuid().ToString();
                 }
+
+                dbUser.CharacterName = character.CharacterName;
                 DataAccess.User.UpdateUser(dbUser);
             }
 

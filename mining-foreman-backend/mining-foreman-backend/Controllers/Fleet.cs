@@ -20,13 +20,17 @@ namespace mining_foreman_backend.Controllers {
         }
 
         [HttpGet("{fleetKey}")]
-        public Models.MiningFleetResponse GetFleetInfo(int fleetKey) {
+        public Models.Network.MiningFleetResponse GetFleetInfo(int fleetKey) {
             var user = DataAccess.User.SelectUserByAPIToken(Request.Cookies["APIToken"]);
-            var fleet = new Models.MiningFleetResponse {
+
+            var fleet = new Models.Network.MiningFleetResponse {
                 FleetInfo = DataAccess.Fleet.SelectFleet(fleetKey),
-                MemberInfo = DataAccess.Fleet.SelectFleetMember(fleetKey,user.UserKey),
                 FleetTotal = DataAccess.MiningLedger.SelectFleetTotalProduction(fleetKey)
             };
+            
+            if (user.ActiveFleetKey == fleetKey) {
+                fleet.MemberInfo = DataAccess.Fleet.SelectFleetMember(fleetKey, user.UserKey);
+            }
             return fleet;
         }
         
@@ -54,6 +58,18 @@ namespace mining_foreman_backend.Controllers {
             DataAccess.Fleet.EndMiningFleet(fleet.MiningFleetKey);
             //Loop through the mining fleet members and calculate the diffzserences of the mining ledger and calculate the difference and put that as the 'ending' mining fleet ledger
             DataAccess.MiningLedger.InsertEndingFleetMiningLedger(fleet.MiningFleetKey);
+        }
+
+        [HttpGet("{fleetKey}/join")]
+        public void JoinMiningFleet(int fleetKey) {
+            var apiToken = Request.Cookies["APIToken"];
+            var user = DataAccess.User.SelectUserByAPIToken(apiToken);
+            
+            //check to see if user is eligible to join
+            if (DataAccess.User.SelectIsUserValidForFleet(user.UserKey, fleetKey)) {
+                DataAccess.Fleet.InsertMiningFleetMember(user.UserKey, fleetKey);
+                DataAccess.MiningLedger.InsertStartingFleetMiningLedger(user.UserKey, fleetKey);
+            }
         }
     }
 }

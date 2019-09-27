@@ -22,7 +22,7 @@ namespace mining_foreman_backend.Controllers {
             this.esiClient = esiClient;
         }
 
-        public async Task<Models.User> Index() {
+        public async Task<Models.Database.User> Index() {
             var characterId = Int32.Parse(User.FindFirst(ClaimTypes.NameIdentifier).Value);
             var characterInfo = await esiClient.Character.GetCharacterPublicInfoV4Async(characterId);
             var corporationInfo =
@@ -42,7 +42,7 @@ namespace mining_foreman_backend.Controllers {
             var location = await esiClient.Universe.GetSolarSystemInfoV4Async(locationInfo.Model.SolarSystemId);
             var mining = await esiClient.Industry.CharacterMiningLedgerV1Async(auth);
 
-            var model = new Models.User {
+            var model = new Models.Database.User {
                 CharacterName = characterInfo.Model.Name,
                 CorporationName = corporationInfo.Model.Name,
                 CharacterLocation = location.Model.Name,

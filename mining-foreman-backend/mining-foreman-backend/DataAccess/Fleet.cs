@@ -12,32 +12,49 @@ namespace mining_foreman_backend.DataAccess {
             }
         }
 
-        public static Models.MiningFleet SelectFleet(int fleetKey) {
+        public static Models.Network.MiningFleet SelectFleet(int miningFleetKey) {
             using (var conn = ConnectionFactory()) {
                 conn.Open();
-                var fleet =  conn.QueryFirst<Models.MiningFleet>(@" SELECT * FROM MiningFleets WHERE MiningFleetKey = @MiningFleetKey", new {MiningFleetKey = fleetKey});
+                var fleet =  conn.QueryFirst<Models.Network.MiningFleet>(@" SELECT * FROM MiningFleets WHERE MiningFleetKey = @MiningFleetKey", new {MiningFleetKey = miningFleetKey});
                 fleet.FleetMembers =
-                    conn.Query<Models.MiningFleetMember>(
-                        @"SELECT DISTINCT mfm.UserKey, mfm.MiningFleetMemberKey, MiningFleetKey FROM MiningFleetMembers mfm WHERE MiningFleetKey = @MiningFleetKey", new{MiningFleetKey = fleetKey}).ToList();
+                    conn.Query<Models.Network.MiningFleetMember>(@"
+                    SELECT DISTINCT mfm.UserKey, u.CharacterName, u.CharacterId, mfm.MiningFleetMemberKey, mfm.MiningFleetKey FROM MiningFleetMembers mfm
+                    JOIN Users u ON mfm.userkey = u.UserKey
+                    WHERE MiningFleetKey = @MiningFleetKey", new{MiningFleetKey = miningFleetKey}).ToList();
                 foreach (var member in fleet.FleetMembers) {
                     if (fleet.IsActive) {
-                        member.MemberMiningLedger = MiningLedger.SelectActiveFleetProductionByUser(member.UserKey, fleetKey);
+                        member.MemberMiningLedger = MiningLedger.SelectActiveFleetProductionByUser(member.UserKey, miningFleetKey);
                     }
                     else {
-                        member.MemberMiningLedger = MiningLedger.SelectFinishedFleetProductionByUser(member.UserKey, fleetKey);
+                        member.MemberMiningLedger = MiningLedger.SelectFinishedFleetProductionByUser(member.UserKey, miningFleetKey);
                     }
                 }
+                fleet.FleetBoss = SelectFleetBoss(miningFleetKey);
                 return fleet;
             }
         }
+
+        public static Models.Network.MiningFleetMember SelectFleetBoss(int miningFleetKey) {
+            using (var conn = ConnectionFactory()) {
+                var fleetBossKey = conn.QuerySingle<int>(
+                    @"SELECT FleetBossKey FROM MiningFleets WHERE MiningFleetKey = @MiningFleetKey",
+                    new {MiningFleetKey = miningFleetKey});
+                return SelectFleetMember(miningFleetKey, fleetBossKey);
+            }
+        }
         
-        public static Models.MiningFleetMember SelectFleetMember(int fleetKey, int userKey) {
+        public static Models.Network.MiningFleetMember SelectFleetMember(int fleetKey, int userKey) {
             using (var conn = ConnectionFactory()) {
                 conn.Open();
-                //Ideally I would like to not have to pull in the whole fleet here to 
+                //Ideally I would like to not have to pull in the whole fleet here to do this.
                 var fleet =  conn.QueryFirst<Models.MiningFleet>(@" SELECT * FROM MiningFleets WHERE MiningFleetKey = @MiningFleetKey", new {MiningFleetKey = fleetKey});
-                var member = conn.QuerySingle<Models.MiningFleetMember>(
-                    @"SELECT mfm.UserKey, mfm.MiningFleetMemberKey, MiningFleetKey FROM MiningFleetMembers mfm WHERE MiningFleetKey = @MiningFleetKey AND UserKey = @UserKey", new{MiningFleetKey = fleetKey, UserKey = userKey});
+                
+                //TODO: Check to see if the user is in the fleet when adding stuff
+                var member = conn.QuerySingle<Models.Network.MiningFleetMember>(@"
+                SELECT mfm.UserKey, u.CharacterName, u.CharacterId, mfm.MiningFleetMemberKey, mfm.MiningFleetKey
+                FROM MiningFleetMembers mfm
+                JOIN Users u ON mfm.userkey = u.UserKey
+                WHERE mfm.MiningFleetKey = @MiningFleetKey AND mfm.UserKey = @UserKey", new{MiningFleetKey = fleetKey, UserKey = userKey});
                 if (fleet.IsActive) {
                     member.MemberMiningLedger = MiningLedger.SelectActiveFleetProductionByUser(member.UserKey, fleetKey);
                 }

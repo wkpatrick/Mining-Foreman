@@ -26,6 +26,7 @@
         data() {
             return {
                 fleets: [],
+                fleetTimer: {},
                 user: {}
             }
         },
@@ -46,27 +47,36 @@
         },
         methods: {
             async getFleets() {
-                try {
-                    const response = await fetch('/api/fleet');
-                    const data = await response.json();
-                    this.fleets = data;
-                } catch (error) {
-                    //console.error(error)
+                if(this.isLoggedIn){
+                    try {
+                        const response = await fetch('/api/fleet');
+                        const data = await response.json();
+                        this.fleets = data;
+                        this.fleetTimer = setTimeout(this.getFleets, 5000);
+                    } catch (error) {
+                        //console.error(error)
+                    }
                 }
+                else{
+                    this.fleetTimer = setTimeout(this.getFleets, 1000);
+                }
+
             },
             async getUser() {
-                //TODO: With Vue you can .bind(this) so that it follows through. Need to do that here
-                let self = this;
-                fetch('/api/user', {
-                    method: 'GET',
-                    credentials: 'include'
-                })
-                    .then(function (response) {
-                        return response.json();
+                if(this.isLoggedIn){
+                    //TODO: With JS you can .bind(this) so that it follows through. Need to do that here
+                    let self = this;
+                    fetch('/api/user', {
+                        method: 'GET',
+                        credentials: 'include'
                     })
-                    .then(function (json) {
-                        self.user = json
-                    })
+                        .then(function (response) {
+                            return response.json();
+                        })
+                        .then(function (json) {
+                            self.user = json
+                        })
+                }
             }
         }
     }

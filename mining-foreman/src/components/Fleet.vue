@@ -12,39 +12,19 @@
                 <div class="media-content">
                     <div class="level">
                         <div class="level-left">
-                            <div class="level-item">
-                                <figure class="image is-64x64">
-                                    <img src="https://bulma.io/images/placeholders/64x64.png">
-                                    Fleet member 1
-                                </figure>
-                            </div>
-                            <div class="level-item">
-                                <figure class="image is-64x64">
-                                    <img src="https://bulma.io/images/placeholders/64x64.png">
-                                    Fleet member 2
-                                </figure>
-                            </div>
-                            <div class="level-item">
-                                <figure class="image is-64x64">
-                                    <img src="https://bulma.io/images/placeholders/64x64.png">
-                                    Fleet member 3
-                                </figure>
-                            </div>
-                            <div class="level-item">
-                                <figure class="image is-64x64">
-                                    <img src="https://bulma.io/images/placeholders/64x64.png">
-                                    Fleet member 4
+                            <div class="level-item" v-for="member in fleet.fleetInfo.fleetMembers" v-bind:key="member.userKey">
+                                <figure class="image is-128x128">
+                                    <img :src="member.portraitUrl">
+                                    {{member.characterName}}
                                 </figure>
                             </div>
                         </div>
                         <div class="level-right">
                             <div class="level-item">
-                                <b-button type="is-info">Join Fleet</b-button>
+                                <b-button type="is-info" @click="openJoinFleetModal">Join Fleet</b-button>
                             </div>
                         </div>
                     </div>
-
-
                 </div>
             </article>
             <b-table :data="fleet.fleetTotal">
@@ -55,7 +35,7 @@
                 </template>
             </b-table>
         </div>
-        <div class="box" style="width: 80%">
+        <div class="box" style="width: 80%" v-if="isUsersActiveFleet">
             <h1>Your Output</h1>
             <article class="media">
                 <div class="media-left">
@@ -106,11 +86,13 @@
                      :narrowed="true">
             </b-table>
         </div>
-        <b-button type="is-success" @click="endFleet"> End Fleet</b-button>
+        <b-button type="is-success" v-if="fleetLoaded && isFleetBoss" @click="endFleet"> End Fleet</b-button>
     </div>
 </template>
 
 <script>
+    import JoinFleetModal from "@/components/JoinFleetModal";
+
     export default {
         name: "Fleet",
         data() {
@@ -154,6 +136,14 @@
         destroyed: function(){
             window.clearTimeout(this.fleetTimer);
         },
+        computed: {
+            isUsersActiveFleet: function(){
+                return (typeof (this.fleet.memberInfo) !== 'undefined' && this.fleet.memberInfo !== null && this.fleet.memberInfo.miningFleetKey === this.fleet.fleetInfo.miningFleetKey);
+            },
+            isFleetBoss: function () {
+                return this.fleet.fleetInfo.fleetBoss.userKey === this.fleet.memberInfo.userKey;
+            }
+        },
         methods: {
             async endFleet() {
                 try {
@@ -188,11 +178,21 @@
                     //console.error(error)
                 }
             },
-            modifyData(member){
-                member.fleetTotal.forEach(function(element){
+            modifyData(fleet){
+                fleet.fleetTotal.forEach(function(element){
                     element.imgUrl = 'https://imageserver.eveonline.com/Type/' + element.typeId + '_32.png';
                 });
-                return member;
+                fleet.fleetInfo.fleetMembers.forEach(function(element){
+                    element.portraitUrl = 'https://imageserver.eveonline.com/Character/' + element.characterId + '_128.jpg';
+                });
+                return fleet;
+            },
+            openJoinFleetModal() {
+                this.$buefy.modal.open({
+                    parent: this,
+                    component: JoinFleetModal,
+                    hasModalCard: true
+                })
             }
         }
     }

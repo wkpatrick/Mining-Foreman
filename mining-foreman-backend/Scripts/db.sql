@@ -30,9 +30,11 @@ $$
             (
                 UserKey                serial PRIMARY KEY,
                 CharacterId            int       NOT NULL,
+                CharacterName          text      NOT NULL,
                 AccessToken            text      NOT NULL,
                 RefreshToken           text      NOT NULL,
                 RefreshTokenExpiresUTC timestamp NOT NULL,
+                APIToken               text,
                 CreateDate             timestamp DEFAULT now(),
                 UpdateDate             timestamp DEFAULT now()
             );
@@ -96,19 +98,19 @@ $$
                 UserKey              int NOT NULL
             );
 
-            --TODO: Switch FLeetKey to MiningFleetKey to match the rest of the schema
+            --TODO: Switch FleetKey to MiningFleetKey to match the rest of the schema
             CREATE TABLE public.MiningFleetLedger
             (
                 MiningFleetLedgerKey serial PRIMARY KEY,
-                FleetKey          int  NOT NULL,
-                UserKey           int  NOT NULL,
-                Date              date NOT NULL,
-                Quantity          int  NOT NULL,
-                SolarSystemId     int  NOT NULL,
-                TypeId            int  NOT NULL,
-                IsStartingLedger  bool NOT NULL,
-                CreateDate        timestamp DEFAULT now(),
-                UpdateDate        timestamp DEFAULT now()
+                FleetKey             int  NOT NULL,
+                UserKey              int  NOT NULL,
+                Date                 date NOT NULL,
+                Quantity             int  NOT NULL,
+                SolarSystemId        int  NOT NULL,
+                TypeId               int  NOT NULL,
+                IsStartingLedger     bool NOT NULL,
+                CreateDate           timestamp DEFAULT now(),
+                UpdateDate           timestamp DEFAULT now()
             );
 
         END IF;

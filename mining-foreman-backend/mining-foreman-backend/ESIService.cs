@@ -7,7 +7,6 @@ using EVEStandard.Models.API;
 using EVEStandard.Models.SSO;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using mining_foreman_backend.DataAccess;
 
 internal class ESIService : IHostedService, IDisposable {
     private readonly ILogger _logger;
@@ -22,6 +21,8 @@ internal class ESIService : IHostedService, IDisposable {
     public Task StartAsync(CancellationToken cancellationToken) {
         _logger.LogInformation("ESI Background Serviec is starting.");
 
+        //TODO: The MiningLedger endpoint returns an Expires member, which tells us the next time it will be valid.
+        //Need to update the timer to refresh then instead.
         _timer = new Timer(DoWork, null, TimeSpan.Zero,
             TimeSpan.FromSeconds(60));
 
@@ -29,9 +30,9 @@ internal class ESIService : IHostedService, IDisposable {
     }
 
     private void DoWork(object state) {
-        _logger.LogInformation("Checking for registered users");
+        _logger.LogDebug("Checking for registered users");
         try {
-            var users = User.SelectAllUsers();
+            var users = mining_foreman_backend.DataAccess.User.SelectAllUsers();
             foreach (var user in users) {
                 var userAuth = new AuthDTO {
                     AccessToken = new AccessTokenDetails() {
@@ -53,7 +54,7 @@ internal class ESIService : IHostedService, IDisposable {
                 var location = esiClient.Universe.GetSolarSystemInfoV4Async(locationInfo.Model.SolarSystemId).Result;
                 var mining = esiClient.Industry.CharacterMiningLedgerV1Async(userAuth).Result;
 
-                var character = new mining_foreman_backend.Models.User {
+                var character = new mining_foreman_backend.Models.Database.User {
                     UserKey = user.UserKey,
                     CharacterName = characterInfo.Model.Name,
                     CorporationName = corporationInfo.Model.Name,
@@ -61,9 +62,9 @@ internal class ESIService : IHostedService, IDisposable {
                     CharacterMining = mining
                 };
 
-                User.UpdateCharacter(character);
+                mining_foreman_backend.DataAccess.User.UpdateCharacter(character);
 
-                _logger.LogInformation("Found User: {0}", user.CharacterId);
+                _logger.LogDebug("Found User: {0}", user.CharacterId);
             }
         }
         catch (Exception e) {
