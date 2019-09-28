@@ -12,7 +12,8 @@
                 <div class="media-content">
                     <div class="level">
                         <div class="level-left">
-                            <div class="level-item" v-for="member in fleet.fleetInfo.fleetMembers" v-bind:key="member.userKey">
+                            <div class="level-item" v-for="member in fleet.fleetInfo.fleetMembers"
+                                 v-bind:key="member.userKey">
                                 <figure class="image is-128x128">
                                     <img :src="member.portraitUrl">
                                     {{member.characterName}}
@@ -29,7 +30,7 @@
             </article>
             <b-table :data="fleet.fleetTotal">
                 <template slot-scope="props">
-                    <b-table-column><img :src="props.row.imgUrl"> </b-table-column>
+                    <b-table-column><img :src="props.row.imgUrl"></b-table-column>
                     <b-table-column label="Ore">{{props.row.typeId}}</b-table-column>
                     <b-table-column label="Quantity" field="quantity"> {{props.row.quantity}}</b-table-column>
                 </template>
@@ -60,16 +61,16 @@
                     </div>
                     <div class="columns">
                         <div class="column">
-                            8,670,000
+                            -----
                         </div>
                         <div class="column">
-                            14,330,000
+                            -----
                         </div>
                         <div class="column">
-                            9,000,000
+                            -----
                         </div>
                         <div class="column">
-                            21,000,000
+                            -----
                         </div>
                     </div>
                     <div class="column">
@@ -81,9 +82,32 @@
         </div>
         <div class="box" style="width: 80%">
             <h1>Total Detailed Fleet Output</h1>
-            <b-table v-if="fleetLoaded" :columns= "fleetColumns"
+            <b-table v-if="fleetLoaded"
                      :data="fleet.fleetInfo.fleetMembers"
                      :narrowed="true">
+                <template slot-scope="props">
+                    <b-table-column field="characterName" label="Character">
+                        {{props.row.characterName}}
+                    </b-table-column>
+                    <b-table-column label="Ore">
+                        <div v-for="ledger in props.row.memberMiningLedger" v-bind:key="ledger.miningFleetKedgerKey">
+                            {{ledger.typeId}}
+                        </div>
+                    </b-table-column>
+                    <b-table-column label="Quantity">
+                        <div v-for="ledger in props.row.memberMiningLedger" v-bind:key="ledger.miningFleetKedgerKey">
+                            {{ledger.quantity}}
+                        </div>
+                    </b-table-column>
+                    <b-table-column label="Copy">
+                        <a @click="test">
+                            <b-icon
+                                    icon="clipboard-arrow-down-outline"
+                                    size="is-small">
+                            </b-icon>
+                        </a>
+                    </b-table-column>
+                </template>
             </b-table>
         </div>
         <b-button type="is-success" v-if="fleetLoaded && isFleetBoss" @click="endFleet"> End Fleet</b-button>
@@ -115,8 +139,8 @@
                 ],
                 fleetColumns: [
                     {
-                        field: 'miningFleetMemberKey',
-                        label: 'Member Key'
+                        field: 'characterName',
+                        label: 'Name'
                     },
                     {
                         field: 'userKey',
@@ -133,15 +157,18 @@
         created: function () {
             this.getFleet()
         },
-        destroyed: function(){
+        destroyed: function () {
             window.clearTimeout(this.fleetTimer);
         },
         computed: {
-            isUsersActiveFleet: function(){
+            isUsersActiveFleet: function () {
                 return (typeof (this.fleet.memberInfo) !== 'undefined' && this.fleet.memberInfo !== null && this.fleet.memberInfo.miningFleetKey === this.fleet.fleetInfo.miningFleetKey);
             },
             isFleetBoss: function () {
-                return this.fleet.fleetInfo.fleetBoss.userKey === this.fleet.memberInfo.userKey;
+                if (this.fleet.memberInfo !== null) {
+                    return this.fleet.fleetInfo.fleetBoss.userKey === this.fleet.memberInfo.userKey;
+                }
+                return false;
             }
         },
         methods: {
@@ -178,11 +205,11 @@
                     //console.error(error)
                 }
             },
-            modifyData(fleet){
-                fleet.fleetTotal.forEach(function(element){
+            modifyData(fleet) {
+                fleet.fleetTotal.forEach(function (element) {
                     element.imgUrl = 'https://imageserver.eveonline.com/Type/' + element.typeId + '_32.png';
                 });
-                fleet.fleetInfo.fleetMembers.forEach(function(element){
+                fleet.fleetInfo.fleetMembers.forEach(function (element) {
                     element.portraitUrl = 'https://imageserver.eveonline.com/Character/' + element.characterId + '_128.jpg';
                 });
                 return fleet;
@@ -193,6 +220,10 @@
                     component: JoinFleetModal,
                     hasModalCard: true
                 })
+            },
+            test() {
+                // eslint-disable-next-line no-console
+                console.log('test')
             }
         }
     }

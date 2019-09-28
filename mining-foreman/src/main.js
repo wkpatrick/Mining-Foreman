@@ -4,6 +4,7 @@ import VueCookies from 'vue-cookies'
 import App from './App.vue'
 import Buefy from 'buefy'
 import 'buefy/dist/buefy.css'
+import '@mdi/font/css/materialdesignicons.css';
 import Fleet from "@/components/Fleet";
 import Index from "@/components/Index";
 
@@ -14,21 +15,21 @@ Vue.config.productionTip = false;
 
 
 const routes = [
-  { path: '/', component: Index },
-  {
-    path: '/fleet/:id',
-    name: 'fleet',
-    component: Fleet,
-    props: true
-  }
+    {path: '/', component: Index},
+    {
+        path: '/fleet/:id',
+        name: 'fleet',
+        component: Fleet,
+        props: true
+    }
 ];
 
 const router = new VueRouter({
-  mode: 'history',
-  routes // short for `routes: routes`
+    mode: 'history',
+    routes // short for `routes: routes`
 });
 
 new Vue({
-  router,
-  render: h => h(App),
+    router,
+    render: h => h(App),
 }).$mount('#app');
