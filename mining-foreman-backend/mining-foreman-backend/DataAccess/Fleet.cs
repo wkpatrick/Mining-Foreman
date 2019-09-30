@@ -51,7 +51,7 @@ namespace mining_foreman_backend.DataAccess {
                 
                 //TODO: Check to see if the user is in the fleet when adding stuff
                 var member = conn.QuerySingle<Models.Network.MiningFleetMember>(@"
-                SELECT mfm.UserKey, u.CharacterName, u.CharacterId, mfm.MiningFleetMemberKey, mfm.MiningFleetKey
+                SELECT mfm.UserKey, u.CharacterName, u.CharacterId, mfm.MiningFleetMemberKey, mfm.MiningFleetKey, mfm.IsActive as MemberIsActive
                 FROM MiningFleetMembers mfm
                 JOIN Users u ON mfm.userkey = u.UserKey
                 WHERE mfm.MiningFleetKey = @MiningFleetKey AND mfm.UserKey = @UserKey", new{MiningFleetKey = fleetKey, UserKey = userKey});
@@ -81,17 +81,38 @@ namespace mining_foreman_backend.DataAccess {
         public static void EndMiningFleet(int miningFleetKey) {
             using (var conn = ConnectionFactory()) {
                 conn.Open();
-                conn.Execute(@"UPDATE MiningFleets SET IsActive = FALSE, EndTime = now() at time zone 'utc' WHERE MiningFleetKey = @MiningFleetKey",
+                conn.Execute(@"UPDATE MiningFleets SET IsActive = false, EndTime = now() at time zone 'utc' WHERE MiningFleetKey = @MiningFleetKey",
+                    new {MiningFleetKey = miningFleetKey});
+                conn.Execute(
+                    @"UPDATE MiningFleetMembers SET IsActive = false WHERE MiningFleetKey = @MiningFleetKey",
                     new {MiningFleetKey = miningFleetKey});
             }
         }
 
-        public static void InsertMiningFleetMember(int userKey, int fleetKey) {
+        public static void InsertMiningFleetMember(int userKey, int miningFleetKey) {
             using (var conn = ConnectionFactory()) {
                 conn.Open();
                 conn.Execute(
                     @"INSERT INTO MiningFleetMembers (MiningFleetKey, UserKey) VALUES (@MiningFleetKey, @UserKey)",
-                    new {MiningFleetKey = fleetKey, UserKey = userKey});
+                    new {MiningFleetKey = miningFleetKey, UserKey = userKey});
+            }
+        }
+        
+        public static void InsertReturningMiningFleetMember(int userKey, int miningFleetKey) {
+            using (var conn = ConnectionFactory()) {
+                conn.Open();
+                conn.Execute(
+                    @"UPDATE MiningFleetMembers SET IsActive = true WHERE MiningFleetKey = @MiningFleetKey AND UserKey = @UserKey",
+                    new {MiningFleetKey = miningFleetKey, UserKey = userKey});
+            }
+        }
+
+        public static void LeaveMiningFleet(int userKey, int miningFleetKey) {
+            using (var conn = ConnectionFactory()) {
+                conn.Open();
+                conn.Execute(@"
+                UPDATE MiningFleetMembers SET IsActive = false WHERE UserKey = @UserKey AND MiningFleetKey = @MiningFleetKey",
+                    new {UserKey = userKey, MiningFleetKey = miningFleetKey}); 
             }
         }
 
@@ -103,6 +124,17 @@ namespace mining_foreman_backend.DataAccess {
                 JOIN MiningFleets mf ON mfm.MiningFleetKey = mf.MiningFleetKey
                 WHERE mfm.UserKey = @UserKey AND mf.IsActive = true ",
                     new {UserKey = userKey});
+            }
+        }
+
+        public static bool SelectIfUserHasBeenInFleetBefore(int userKey, int miningFleetKey) {
+            using (var conn = ConnectionFactory()) {
+                conn.Open();
+                var count = conn.QuerySingleOrDefault<int>(@"
+                SELECT COUNT (MiningFleetLedgerKey) FROM MiningFleetLedger
+                WHERE FleetKey = @MiningFleetKey AND UserKey = @UserKey",
+                    new {UserKey = userKey, MiningFleetKey = miningFleetKey});
+                return count > 0;
             }
         }
     }

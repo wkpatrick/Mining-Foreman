@@ -89,7 +89,7 @@ namespace mining_foreman_backend.DataAccess {
                 var activeFleets = conn.Query<Models.MiningFleet>(@"
                 SELECT mf.* FROM MiningFleets mf
                 JOIN MiningFleetMembers mfm ON mf.MiningFleetKey = mfm.MiningFleetKey
-                WHERE IsActive = true AND UserKey = @UserKey",
+                WHERE mf.IsActive = true AND mfm.IsActive = true AND UserKey = @UserKey",
                     new {UserKey = userKey}).ToList();
 
                 if (activeFleets.Count > 0) {

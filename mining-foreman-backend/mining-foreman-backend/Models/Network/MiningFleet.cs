@@ -20,6 +20,7 @@ namespace mining_foreman_backend.Models.Network {
         public int CharacterId { get; set;}
         public string CharacterName { get; set; }
         public List<MiningFleetLedger> MemberMiningLedger { get; set; }
+        public bool MemberIsActive { get; set; }
     }
     
     public class MiningFleetResponse {

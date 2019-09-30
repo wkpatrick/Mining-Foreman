@@ -94,8 +94,9 @@ $$
             CREATE TABLE public.MiningFleetMembers
             (
                 MiningFleetMemberKey serial PRIMARY KEY,
-                MiningFleetKey       int NOT NULL,
-                UserKey              int NOT NULL
+                MiningFleetKey       int  NOT NULL,
+                UserKey              int  NOT NULL,
+                IsActive             bool NOT NULL DEFAULT false
             );
 
             --TODO: Switch FleetKey to MiningFleetKey to match the rest of the schema
@@ -109,8 +110,16 @@ $$
                 SolarSystemId        int  NOT NULL,
                 TypeId               int  NOT NULL,
                 IsStartingLedger     bool NOT NULL,
-                CreateDate           timestamp DEFAULT now(),
-                UpdateDate           timestamp DEFAULT now()
+                LedgerCount          int  NOT NULL DEFAULT 0,
+                CreateDate           timestamp     DEFAULT now(),
+                UpdateDate           timestamp     DEFAULT now()
+            );
+
+            CREATE TABLE public.PendingMiningLedger
+            (
+                PendingMiningLedgerKey serial PRIMARY KEY,
+                FleetKey               int NOT NULL,
+                MemberKey              int
             );
 
         END IF;
