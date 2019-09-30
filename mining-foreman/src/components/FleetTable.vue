@@ -9,7 +9,7 @@
 </template>
 
 <script>
-    import CreateFleetModal from "@/components/CreateFleetModal";
+    import CreateFleetModal from "@/components/Modals/CreateFleetModal";
 
     export default {
         name: "FleetTable",

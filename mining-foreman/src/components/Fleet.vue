@@ -22,7 +22,8 @@
                         </div>
                         <div class="level-right">
                             <div class="level-item">
-                                <b-button type="is-info" @click="openJoinFleetModal">Join Fleet</b-button>
+                                <b-button type="is-info" v-if="showJoinFleetButton" @click="openJoinFleetModal">Join Fleet</b-button>
+                                <b-button type="is-info" v-if="showLeaveFleetButton" @click="openLeaveFleetModal">Leave Fleet</b-button>
                             </div>
                         </div>
                     </div>
@@ -115,7 +116,8 @@
 </template>
 
 <script>
-    import JoinFleetModal from "@/components/JoinFleetModal";
+    import JoinFleetModal from "@/components/Modals/JoinFleetModal";
+    import LeaveFleetModal from "@/components/Modals/LeaveFleetModal";
 
     export default {
         name: "Fleet",
@@ -162,13 +164,19 @@
         },
         computed: {
             isUsersActiveFleet: function () {
-                return (typeof (this.fleet.memberInfo) !== 'undefined' && this.fleet.memberInfo !== null && this.fleet.memberInfo.miningFleetKey === this.fleet.fleetInfo.miningFleetKey);
+                return typeof (this.fleet.memberInfo) !== 'undefined' && this.fleet.memberInfo !== null && this.fleet.memberInfo.memberIsActive;
             },
             isFleetBoss: function () {
                 if (this.fleet.memberInfo !== null) {
                     return this.fleet.fleetInfo.fleetBoss.userKey === this.fleet.memberInfo.userKey;
                 }
                 return false;
+            },
+            showJoinFleetButton: function(){
+                return !this.isUsersActiveFleet && this.fleet.fleetInfo.isActive
+            },
+            showLeaveFleetButton: function () {
+                return this.isUsersActiveFleet && this.fleet.memberInfo.memberIsActive
             }
         },
         methods: {
@@ -218,6 +226,13 @@
                 this.$buefy.modal.open({
                     parent: this,
                     component: JoinFleetModal,
+                    hasModalCard: true
+                })
+            },
+            openLeaveFleetModal(){
+                this.$buefy.modal.open({
+                    parent: this,
+                    component: LeaveFleetModal,
                     hasModalCard: true
                 })
             },

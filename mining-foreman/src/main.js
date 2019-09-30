@@ -3,8 +3,8 @@ import VueRouter from "vue-router";
 import VueCookies from 'vue-cookies'
 import App from './App.vue'
 import Buefy from 'buefy'
-import 'buefy/dist/buefy.css'
 import '@mdi/font/css/materialdesignicons.css';
+
 import Fleet from "@/components/Fleet";
 import Index from "@/components/Index";
 
