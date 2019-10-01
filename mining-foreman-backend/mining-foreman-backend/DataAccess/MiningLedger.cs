@@ -19,12 +19,14 @@ namespace mining_foreman_backend.DataAccess {
                 conn.Open();
 
                 return conn.Query<Models.MiningFleetLedger>(@"
-                SELECT  ml.TypeId, SUM(ml.quantity - COALESCE(mfl.quantity, 0)) as Quantity, ml.SolarSystemId FROM MiningLedger ml
+                SELECT  ml.TypeId, SUM(ml.quantity - COALESCE(mfl.quantity, 0)) as Quantity FROM MiningLedger ml
                 JOIN MiningFleetMembers mfm ON ml.UserKey = mfm.UserKey
                 JOIN MiningFleets mf ON mfm.MiningFleetKey = mf.MiningFleetKey
                 LEFT OUTER JOIN MiningFleetLedger mfl  ON mfl.FleetKey = mf.MiningFleetKey AND mfl.IsStartingLedger = true
-                WHERE mf.MiningFleetKey = @MiningFleetKey AND ml.Date >= mf.StartTime::date AND ml.UserKey = @UserKey
-                GROUP BY ml.TypeId, ml.SolarSystemId",
+                AND mfl.LedgerCount = (SELECT MAX(LedgerCount) FROM MiningFleetLedger WHERE FleetKey = @FleetKey AND UserKey = ml.UserKey)
+                AND mfl.TypeId = ml.TypeId
+                WHERE mf.MiningFleetKey = @MiningFleetKey AND ml.Date >= mf.StartTime::date AND ml.UserKey = @UserKey AND mfm.IsActive = true
+                GROUP BY ml.TypeId",
                     new {UserKey = userKey, MiningFleetKey = miningFleetKey}).ToList();
             }
         }
@@ -38,8 +40,7 @@ namespace mining_foreman_backend.DataAccess {
                     new {MiningFleetKey = miningFleetKey, UserKey = userKey}).ToList();
             }
         }
-
-        //TODO: Sum together the multiple ending fleet ledgers from the user if they join leave multiple times
+        
         public static List<Models.FleetTotal> SelectFleetTotalProduction(int miningFleetKey) {
             using (var conn = ConnectionFactory()) {
                 conn.Open();
@@ -52,11 +53,12 @@ namespace mining_foreman_backend.DataAccess {
                     JOIN MiningFleetMembers mfm ON ml.UserKey = mfm.UserKey
                     JOIN MiningFleets mf ON mfm.MiningFleetKey = mf.MiningFleetKey
                     LEFT OUTER JOIN MiningFleetLedger mfl  ON mfl.FleetKey = mf.MiningFleetKey AND mfl.IsStartingLedger = true
-                    WHERE mf.MiningFleetKey = @MiningFleetKey AND ml.Date >= mf.StartTime::date
+                    AND mfl.LedgerCount = (SELECT MAX(LedgerCount) FROM MiningFleetLedger WHERE FleetKey = @FleetKey AND UserKey = ml.UserKey)
+                    AND mfl.TypeId = ml.TypeId
+                    WHERE mf.MiningFleetKey = @MiningFleetKey AND ml.Date >= mf.StartTime::date AND mfm.IsActive = true
                     GROUP BY ml.TypeId",
                         new {MiningFleetKey = miningFleetKey}).ToList();
                     
-                    /** My query above might just be good enough to not have to deal with this shit
                     totalList.AddRange(conn.Query<Models.FleetTotal>(@"
                     SELECT TypeId, SUM(Quantity) as Quantity FROM MiningFleetLedger 
                     WHERE FleetKey = @MiningFleetKey AND IsStartingLedger = false
@@ -72,8 +74,6 @@ namespace mining_foreman_backend.DataAccess {
                             Quantity = typeGroup.Sum(x => x.Quantity)
                         };
                     return sumTotal.ToList();
-                    **/
-                    return totalList;
                 }
 
                 return conn.Query<Models.FleetTotal>(@"
@@ -103,7 +103,8 @@ namespace mining_foreman_backend.DataAccess {
                 conn.Open();
                 conn.Execute(@"
                 INSERT INTO MiningFleetLedger (FleetKey, UserKey, Date, Quantity, SolarSystemId, TypeId, IsStartingLedger, LedgerCount )
-                SELECT mf.MiningFleetKey AS FleetKey, ml.UserKey, ml.Date, (ml.quantity - COALESCE(mfl.quantity, 0)) as Quantity, ml.SolarSystemId, ml.TypeId, FALSE as IsStartingLedger FROM MiningLedger ml
+                SELECT mf.MiningFleetKey AS FleetKey, ml.UserKey, ml.Date, (ml.quantity - COALESCE(mfl.quantity, 0)) as Quantity, 
+                ml.SolarSystemId, ml.TypeId, FALSE as IsStartingLedger, COALESCE(mfl.LedgerCount, 0) as LedgerCount FROM MiningLedger ml
                 JOIN MiningFleetMembers mlf ON ml.UserKey = mlf.UserKey
                 JOIN MiningFleets mf ON mlf.MiningFleetKey = mf.MiningFleetKey
                 LEFT OUTER JOIN MiningFleetLedger mfl  ON mfl.FleetKey = mf.MiningFleetKey 
@@ -114,6 +115,7 @@ namespace mining_foreman_backend.DataAccess {
             }
         }
 
+        //TODO: Have this disregard anything with a quantity of 0
         public static void InsertEndingFleetMiningLedger(int miningFleetKey, int userKey) {
             using (var conn = ConnectionFactory()) {
                 conn.Open();
@@ -127,6 +129,7 @@ namespace mining_foreman_backend.DataAccess {
                 LEFT OUTER JOIN MiningFleetLedger mfl  ON mfl.FleetKey = mf.MiningFleetKey 
                 AND mfl.IsStartingLedger = true 
                 AND mfl.LedgerCount = (SELECT COALESCE(MAX(LedgerCount), 0) FROM MiningFleetLedger WHERE FleetKey = mf.MiningFleetKey AND UserKey = @UserKey)
+                AND mfl.TypeId = ml.TypeId
                 WHERE mf.MiningFleetKey = @MiningFleetKey AND ml.Date >= mf.StartTime::date AND ml.UserKey = @UserKey",
                     new {MiningFleetKey = miningFleetKey, UserKey = userKey});
             }
