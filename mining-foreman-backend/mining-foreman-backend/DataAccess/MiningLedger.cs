@@ -13,6 +13,7 @@ namespace mining_foreman_backend.DataAccess {
             }
         }
 
+        //TODO: Switch this to a FleetTotal??
         public static List<Models.MiningFleetLedger>
             SelectActiveFleetProductionByUser(int userKey, int miningFleetKey) {
             using (var conn = ConnectionFactory()) {
@@ -23,9 +24,9 @@ namespace mining_foreman_backend.DataAccess {
                 JOIN MiningFleetMembers mfm ON ml.UserKey = mfm.UserKey
                 JOIN MiningFleets mf ON mfm.MiningFleetKey = mf.MiningFleetKey
                 LEFT OUTER JOIN MiningFleetLedger mfl  ON mfl.FleetKey = mf.MiningFleetKey AND mfl.IsStartingLedger = true
-                AND mfl.LedgerCount = (SELECT MAX(LedgerCount) FROM MiningFleetLedger WHERE FleetKey = @FleetKey AND UserKey = ml.UserKey)
+                AND mfl.LedgerCount = (SELECT MAX(LedgerCount) FROM MiningFleetLedger WHERE FleetKey = @MiningFleetKey AND UserKey = ml.UserKey)
                 AND mfl.TypeId = ml.TypeId
-                WHERE mf.MiningFleetKey = @MiningFleetKey AND ml.Date >= mf.StartTime::date AND ml.UserKey = @UserKey AND mfm.IsActive = true
+                WHERE mf.MiningFleetKey = @MiningFleetKey AND ml.UserKey = @UserKey AND ml.Date >= mf.StartTime::date AND mfm.IsActive = true
                 GROUP BY ml.TypeId",
                     new {UserKey = userKey, MiningFleetKey = miningFleetKey}).ToList();
             }
@@ -53,7 +54,7 @@ namespace mining_foreman_backend.DataAccess {
                     JOIN MiningFleetMembers mfm ON ml.UserKey = mfm.UserKey
                     JOIN MiningFleets mf ON mfm.MiningFleetKey = mf.MiningFleetKey
                     LEFT OUTER JOIN MiningFleetLedger mfl  ON mfl.FleetKey = mf.MiningFleetKey AND mfl.IsStartingLedger = true
-                    AND mfl.LedgerCount = (SELECT MAX(LedgerCount) FROM MiningFleetLedger WHERE FleetKey = @FleetKey AND UserKey = ml.UserKey)
+                    AND mfl.LedgerCount = (SELECT MAX(LedgerCount) FROM MiningFleetLedger WHERE FleetKey = @MiningFleetKey AND UserKey = ml.UserKey)
                     AND mfl.TypeId = ml.TypeId
                     WHERE mf.MiningFleetKey = @MiningFleetKey AND ml.Date >= mf.StartTime::date AND mfm.IsActive = true
                     GROUP BY ml.TypeId",

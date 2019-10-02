@@ -28,6 +28,7 @@
                         credentials: 'include'
                     });
                     const data = await response.json();
+                    self.$parent.close();
                     // eslint-disable-next-line no-console
                     console.log(data);
                 } catch (error) {

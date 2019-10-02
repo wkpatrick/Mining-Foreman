@@ -72,7 +72,7 @@ namespace mining_foreman_backend.DataAccess {
                     @"INSERT INTO MiningFleets (FleetBossKey, StartTime, EndTime, IsActive) 
                             VALUES (@FleetBossKey, @StartTime, @EndTime, @IsActive) RETURNING MiningFleetKey;",
                     new {
-                        FleetBossKey = fleet.FleetBossKey, StartTime = fleet.StartTime, EndTime = fleet.EndTime,
+                        FleetBossKey = fleet.FleetBossKey, StartTime = fleet.StartTime.ToUniversalTime(), EndTime = fleet.EndTime,
                         IsActive = fleet.IsActive
                     });
             }
@@ -93,7 +93,7 @@ namespace mining_foreman_backend.DataAccess {
             using (var conn = ConnectionFactory()) {
                 conn.Open();
                 conn.Execute(
-                    @"INSERT INTO MiningFleetMembers (MiningFleetKey, UserKey) VALUES (@MiningFleetKey, @UserKey)",
+                    @"INSERT INTO MiningFleetMembers (MiningFleetKey, UserKey, IsActive) VALUES (@MiningFleetKey, @UserKey, true)",
                     new {MiningFleetKey = miningFleetKey, UserKey = userKey});
             }
         }

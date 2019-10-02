@@ -131,10 +131,6 @@
                         label: 'Ore'
                     },
                     {
-                        field: 'solarSystemId',
-                        label: 'Solar System'
-                    },
-                    {
                         field: 'quantity',
                         label: 'Quantity'
                     }
