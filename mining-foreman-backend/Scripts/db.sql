@@ -115,13 +115,20 @@ $$
                 UpdateDate           timestamp     DEFAULT now()
             );
 
-            CREATE TABLE public.PendingMiningLedger
+            --For when a person joins a leaves a fleet, it should wait until the cache expires to get the ending fleet ledger
+            CREATE TABLE public.PendingMiningFleetLedgers
             (
-                PendingMiningLedgerKey serial PRIMARY KEY,
-                FleetKey               int NOT NULL,
-                MemberKey              int
+                PendingFleetMiningLedgerKey serial PRIMARY KEY,
+                MiningFleetKey              int NOT NULL,
+                MemberKey                   int
             );
 
+            CREATE TABLE public.TypeIdNames
+            (
+                TypeIdNameKey serial PRIMARY KEY,
+                TypeId        int NOT NULL,
+                TypeName      text NOT NULL
+            );
         END IF;
     END
 $$;

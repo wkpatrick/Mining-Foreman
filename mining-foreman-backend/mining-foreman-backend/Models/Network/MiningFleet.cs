@@ -26,6 +26,6 @@ namespace mining_foreman_backend.Models.Network {
     public class MiningFleetResponse {
         public MiningFleet FleetInfo { get; set; }
         public MiningFleetMember MemberInfo { get; set; }
-        public List<FleetTotal> FleetTotal { get; set; }
+        public List<MiningFleetLedger> FleetTotal { get; set; }
     }
 }

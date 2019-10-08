@@ -70,6 +70,20 @@ internal class ESIService : IHostedService, IDisposable {
                     _logger.LogDebug("Found User: {0}", user.CharacterId);
                     _miningExpiration = mining.Expires.Value.LocalDateTime;
                 }
+
+                var pendingLedgers = mining_foreman_backend.DataAccess.MiningLedger.SelectPendingMiningFleetLedgers();
+                foreach (var ledger in pendingLedgers) {
+                    if (ledger.MemberKey != -1) {
+                        mining_foreman_backend.DataAccess.MiningLedger.InsertEndingFleetMiningLedger(
+                            ledger.MiningFleetKey, ledger.MemberKey);
+                    }
+                    else {
+                        mining_foreman_backend.DataAccess.MiningLedger.InsertEndingFleetMiningLedger(
+                            ledger.MiningFleetKey);
+                    }
+                }
+
+                UpdateTranslations();
             }
             catch (Exception e) {
                 Console.WriteLine(e);
@@ -78,6 +92,14 @@ internal class ESIService : IHostedService, IDisposable {
         }
         else {
             _logger.LogInformation("Waiting for the mining ledger to expire");
+        }
+    }
+
+    private void UpdateTranslations() {
+        var unnamedTypes = mining_foreman_backend.DataAccess.TypeIdName.SelectUnnamedTypeIds();
+        foreach (var type in unnamedTypes) {
+            type.TypeName = esiClient.Universe.GetTypeInfoV3Async(type.TypeId).Result.Model.Name;
+            mining_foreman_backend.DataAccess.TypeIdName.InsertTypeIdName(type);
         }
     }
 

@@ -58,7 +58,8 @@ namespace mining_foreman_backend.Controllers {
             //Set IsActive to 0 on the mining fleet
             DataAccess.Fleet.EndMiningFleet(fleet.MiningFleetKey);
             //Loop through the mining fleet members and calculate the differences of the mining ledger and calculate the difference and put that as the 'ending' mining fleet ledger
-            DataAccess.MiningLedger.InsertEndingFleetMiningLedger(fleet.MiningFleetKey);
+            //DataAccess.MiningLedger.InsertEndingFleetMiningLedger(fleet.MiningFleetKey);
+            DataAccess.MiningLedger.InsertPendingMiningFleetLedger(fleet.MiningFleetKey);
         }
 
         //This differs from end since a single user can leave and join mining fleets
@@ -67,7 +68,8 @@ namespace mining_foreman_backend.Controllers {
             var apiToken = Request.Cookies["APIToken"];
             var user = DataAccess.User.SelectUserByAPIToken(apiToken);
 
-            DataAccess.MiningLedger.InsertEndingFleetMiningLedger(fleetKey, user.UserKey);
+            //DataAccess.MiningLedger.InsertEndingFleetMiningLedger(fleetKey, user.UserKey);
+            DataAccess.MiningLedger.InsertPendingMiningFleetLedger(fleetKey, user.UserKey);
             DataAccess.Fleet.LeaveMiningFleet(user.UserKey, fleetKey);
         }
 

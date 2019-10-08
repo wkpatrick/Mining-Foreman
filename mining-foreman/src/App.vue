@@ -1,6 +1,12 @@
 <template>
     <div id="app">
-        <img alt="Vue logo" src="./assets/logo.png">
+        <nav class="level" style="background: black; color: white">
+            <div class="level-left">
+                <div class="level-item">
+                    <h1 class="is-size-2">Eve Mining Foreman</h1>
+                </div>
+            </div>
+        </nav>
         <router-view></router-view>
     </div>
 </template>
@@ -53,7 +59,6 @@
         -moz-osx-font-smoothing: grayscale;
         text-align: center;
         color: #2c3e50;
-        margin-top: 60px;
     }
 
 </style>

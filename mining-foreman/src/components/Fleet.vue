@@ -1,7 +1,7 @@
 <template>
-    <div>
+    <div class="container is-fluid">
         <h1>Issa fleet</h1>
-        <div class="box" style="width: 80%" v-if="fleetLoaded">
+        <div class="box" v-if="fleetLoaded">
             <article class="media">
                 <div class="media-left">
                     <figure class="media-left image is-128x128">
@@ -29,15 +29,16 @@
                     </div>
                 </div>
             </article>
+            <br>
             <b-table :data="fleet.fleetTotal">
                 <template slot-scope="props">
-                    <b-table-column><img :src="props.row.imgUrl"></b-table-column>
-                    <b-table-column label="Ore">{{props.row.typeId}}</b-table-column>
+                    <b-table-column width="40"><img :src="props.row.imgUrl"></b-table-column>
+                    <b-table-column label="Ore">{{props.row.typeName}}</b-table-column>
                     <b-table-column label="Quantity" field="quantity"> {{props.row.quantity}}</b-table-column>
                 </template>
             </b-table>
         </div>
-        <div class="box" style="width: 80%" v-if="isUsersActiveFleet">
+        <div class="box" v-if="isUsersActiveFleet">
             <h1>Your Output</h1>
             <article class="media">
                 <div class="media-left">
@@ -81,7 +82,7 @@
                 </div>
             </article>
         </div>
-        <div class="box" style="width: 80%">
+        <div class="box">
             <h1>Total Detailed Fleet Output</h1>
             <b-table v-if="fleetLoaded"
                      :data="fleet.fleetInfo.fleetMembers"
@@ -92,7 +93,7 @@
                     </b-table-column>
                     <b-table-column label="Ore">
                         <div v-for="ledger in props.row.memberMiningLedger" v-bind:key="ledger.miningFleetKedgerKey">
-                            {{ledger.typeId}}
+                            {{ledger.typeName}}
                         </div>
                     </b-table-column>
                     <b-table-column label="Quantity">
@@ -127,26 +128,12 @@
                 fleetLoaded: false,
                 columns: [
                     {
-                        field: 'typeId',
+                        field: 'typeName',
                         label: 'Ore'
                     },
                     {
                         field: 'quantity',
                         label: 'Quantity'
-                    }
-                ],
-                fleetColumns: [
-                    {
-                        field: 'characterName',
-                        label: 'Name'
-                    },
-                    {
-                        field: 'userKey',
-                        label: 'User Key'
-                    },
-                    {
-                        field: 'memberMiningLedger',
-                        label: 'test'
                     }
                 ],
                 fleetTimer: {}

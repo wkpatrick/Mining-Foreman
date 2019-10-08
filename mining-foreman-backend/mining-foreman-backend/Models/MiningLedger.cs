@@ -18,6 +18,7 @@ namespace mining_foreman_backend.Models {
         public int Quantity { get; set; }
         public int SolarSystemId { get; set; }
         public int TypeId { get; set; }
+        public string TypeName { get; set; }
         public bool IsStartingLedger { get; set; }
         public int LedgerCount { get; set; }
     }
