@@ -4,6 +4,7 @@ using Dapper;
 
 namespace mining_foreman_backend.DataAccess {
     public class TypeIdName : DataAccess {
+        //TODO: Limit this to the TOP N so that I dont end up doing a full table scan.
         public static List<Models.Database.TypeIdName> SelectUnnamedTypeIds() {
             using (var conn = ConnectionFactory()) {
                 conn.Open();

@@ -82,22 +82,28 @@ namespace mining_foreman_backend.DataAccess {
                         GROUP BY ml.TypeId, tin.TypeName",
                         new {MiningFleetKey = miningFleetKey}).ToList();
 
+                    var doLinq = totalList.Count > 0;
+
                     totalList.AddRange(conn.Query<Models.MiningFleetLedger>(@"
                         SELECT TypeId, SUM(Quantity) as Quantity FROM MiningFleetLedger 
                         WHERE FleetKey = @MiningFleetKey AND IsStartingLedger = false
                         GROUP BY TypeId",
                         new {MiningFleetKey = miningFleetKey}).ToList());
 
-                    var sumTotal =
-                        from total in totalList
-                        group total by total.TypeId
-                        into typeGroup
-                        select new Models.MiningFleetLedger {
-                            TypeId = typeGroup.Key,
-                            TypeName = typeGroup.First(x => x.TypeName != null).TypeName,
-                            Quantity = typeGroup.Sum(x => x.Quantity)
-                        };
-                    return sumTotal.ToList();
+                    if (doLinq) {
+                        var sumTotal =
+                            from total in totalList
+                            group total by total.TypeId
+                            into typeGroup
+                            select new Models.MiningFleetLedger {
+                                TypeId = typeGroup.Key,
+                                TypeName = typeGroup.First(x => x.TypeName != null).TypeName,
+                                Quantity = typeGroup.Sum(x => x.Quantity)
+                            };
+                        return sumTotal.ToList();
+                    }
+
+                    return totalList;
                 }
 
                 return conn.Query<Models.MiningFleetLedger>(@"
@@ -188,7 +194,7 @@ namespace mining_foreman_backend.DataAccess {
         public static void InsertPendingMiningFleetLedger(int miningFleetKey) {
             using (var conn = ConnectionFactory()) {
                 conn.Open();
-                conn.Execute(@"INSERT INTO PendingMiningFleetLedgers (MiningFleetKey) VALUES (@MiningFleetKey)",
+                conn.Execute(@"INSERT INTO PendingMiningFleetLedgers (MiningFleetKey, IsStartingLedger) VALUES (@MiningFleetKey, false)",
                     new {MiningFleetKey = miningFleetKey});
             }
         }
@@ -196,7 +202,7 @@ namespace mining_foreman_backend.DataAccess {
         public static void InsertPendingMiningFleetLedger(int miningFleetKey, int userKey) {
             using (var conn = ConnectionFactory()) {
                 conn.Open();
-                conn.Execute(@"INSERT INTO PendingMiningFleetLedgers (MiningFleetKey, MemberKey) VALUES (@MiningFleetKey, @MemberKey)",
+                conn.Execute(@"INSERT INTO PendingMiningFleetLedgers (MiningFleetKey, MemberKey, IsStartingLedger) VALUES (@MiningFleetKey, @MemberKey, false)",
                     new {MiningFleetKey = miningFleetKey, MemberKey = userKey});
             }
         }

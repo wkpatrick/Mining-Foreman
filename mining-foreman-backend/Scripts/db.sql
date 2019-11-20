@@ -49,7 +49,7 @@ $$
             $BODY$ LANGUAGE plpgsql;
 
             CREATE TRIGGER user_update_date
-                AFTER UPDATE OF CharcterId, AccessToken, RefreshToken, ExpiresUTC
+                AFTER UPDATE OF CharacterId, AccessToken, RefreshToken, RefreshTokenExpiresUTC
                 ON Users
                 FOR EACH ROW
             EXECUTE PROCEDURE update_user_date();
@@ -119,14 +119,15 @@ $$
             CREATE TABLE public.PendingMiningFleetLedgers
             (
                 PendingFleetMiningLedgerKey serial PRIMARY KEY,
-                MiningFleetKey              int NOT NULL,
-                MemberKey                   int
+                MiningFleetKey              int  NOT NULL,
+                MemberKey                   int,
+                IsStartingLedger            bool NOT NULL
             );
 
             CREATE TABLE public.TypeIdNames
             (
                 TypeIdNameKey serial PRIMARY KEY,
-                TypeId        int NOT NULL,
+                TypeId        int  NOT NULL,
                 TypeName      text NOT NULL
             );
         END IF;

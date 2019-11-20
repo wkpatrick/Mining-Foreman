@@ -15,7 +15,6 @@ namespace mining_foreman_backend.Controllers {
                     fleet.IsFleetBoss = true;
                 }
             }
-
             return fleets;
         }
 

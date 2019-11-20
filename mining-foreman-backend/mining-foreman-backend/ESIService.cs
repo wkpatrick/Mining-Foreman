@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using EVEStandard;
@@ -72,7 +73,15 @@ internal class ESIService : IHostedService, IDisposable {
                 }
 
                 var pendingLedgers = mining_foreman_backend.DataAccess.MiningLedger.SelectPendingMiningFleetLedgers();
-                foreach (var ledger in pendingLedgers) {
+                //TODO: Add fleet enter ledgers in there and resolve those first before ending ledgers
+                foreach (var ledger in pendingLedgers.Where(l => l.IsStartingLedger)) {
+                    if (ledger.MemberKey != -1) {
+                        mining_foreman_backend.DataAccess.MiningLedger.InsertStartingFleetMiningLedger(
+                            ledger.MiningFleetKey, ledger.MemberKey);
+                    }
+                }
+
+                foreach (var ledger in pendingLedgers.Where(l => !l.IsStartingLedger)) {
                     if (ledger.MemberKey != -1) {
                         mining_foreman_backend.DataAccess.MiningLedger.InsertEndingFleetMiningLedger(
                             ledger.MiningFleetKey, ledger.MemberKey);
@@ -82,7 +91,6 @@ internal class ESIService : IHostedService, IDisposable {
                             ledger.MiningFleetKey);
                     }
                 }
-
                 UpdateTranslations();
             }
             catch (Exception e) {

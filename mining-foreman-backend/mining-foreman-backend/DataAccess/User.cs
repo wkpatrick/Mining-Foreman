@@ -28,7 +28,7 @@ namespace mining_foreman_backend.DataAccess {
             using (var conn = ConnectionFactory()) {
                 conn.Open();
                 return conn.Execute(
-                    @"INSERT INTO Users (CharacterId, AccessToken, RefreshToken, RefreshTokenExpiresUtc, APIToken) VALUES(@CharacterId, @AccessToken, @RefreshToken, @RefreshTokenExpiresUTC, @APIToken)",
+                    @"INSERT INTO Users (CharacterId, CharacterName, AccessToken, RefreshToken, RefreshTokenExpiresUtc, APIToken) VALUES(@CharacterId, @CharacterName, @AccessToken, @RefreshToken, @RefreshTokenExpiresUTC, @APIToken)",
                     user);
             }
         }
