@@ -21,18 +21,22 @@
     export default {
         name: "CreateFleetModal",
         methods: {
-            async createNewFleet() {
+            createNewFleet() {
                 try {
-                    const response = await fetch('/api/fleet/start', {
+                    const response = fetch('/api/fleet/start', {
                         method: 'POST',
                         credentials: 'include'
                     });
-                    const data = await response.json();
-                    self.$parent.close();
+                    const data = response.json();
+
                     // eslint-disable-next-line no-console
                     console.log(data);
                 } catch (error) {
                     //console.error(error)
+                }
+                finally {
+                    //TODO: Have this switch you over to the newly created fleets page.
+                    this.$emit('close');
                 }
             }
         }

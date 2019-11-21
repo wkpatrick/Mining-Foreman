@@ -37,7 +37,7 @@ internal class ESIService : IHostedService, IDisposable {
                 var users = mining_foreman_backend.DataAccess.User.SelectAllUsers();
                 foreach (var user in users) {
                     var userAuth = new AuthDTO {
-                        AccessToken = new AccessTokenDetails() {
+                        AccessToken = new AccessTokenDetails {
                             AccessToken = user.AccessToken,
                             ExpiresUtc = user.RefreshTokenExpiresUTC,
                             RefreshToken = user.RefreshToken
@@ -70,6 +70,7 @@ internal class ESIService : IHostedService, IDisposable {
 
                     _logger.LogDebug("Found User: {0}", user.CharacterId);
                     _miningExpiration = mining.Expires.Value.LocalDateTime;
+                    _logger.LogInformation("ESI Cache expires at:  {@Time:MM/dd/yy H:mm:ss zzz}", _miningExpiration);
                 }
 
                 var pendingLedgers = mining_foreman_backend.DataAccess.MiningLedger.SelectPendingMiningFleetLedgers();
@@ -82,7 +83,7 @@ internal class ESIService : IHostedService, IDisposable {
                 }
 
                 foreach (var ledger in pendingLedgers.Where(l => !l.IsStartingLedger)) {
-                    if (ledger.MemberKey != -1) {
+                    if (ledger.MemberKey != 0) {
                         mining_foreman_backend.DataAccess.MiningLedger.InsertEndingFleetMiningLedger(
                             ledger.MiningFleetKey, ledger.MemberKey);
                     }
@@ -99,7 +100,7 @@ internal class ESIService : IHostedService, IDisposable {
             }
         }
         else {
-            _logger.LogInformation("Waiting for the mining ledger to expire");
+            _logger.LogDebug("Waiting for the mining ledger to expire");
         }
     }
 
@@ -112,7 +113,7 @@ internal class ESIService : IHostedService, IDisposable {
     }
 
     public Task StopAsync(CancellationToken cancellationToken) {
-        _logger.LogInformation("Timed Background Service is stopping.");
+        _logger.LogDebug("Timed Background Service is stopping.");
 
         _timer?.Change(Timeout.Infinite, 0);
 

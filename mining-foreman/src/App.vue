@@ -3,7 +3,7 @@
         <nav class="level" style="background: black; color: white">
             <div class="level-left">
                 <div class="level-item">
-                    <h1 class="is-size-2">Eve Mining Foreman</h1>
+                    <a class="is-size-2" @click="clickedHomeButton">Eve Mining Foreman</a>
                 </div>
             </div>
         </nav>
@@ -12,12 +12,17 @@
 </template>
 
 <script>
-
     export default {
         name: 'app',
-        components: {}
+        components: {},
+        methods: {
+            clickedHomeButton() {
+                // eslint-disable-next-line no-unused-vars
+                this.$router.push({name: 'home'}).catch(err => {})
+            }
+        }
     }
-</script>yar
+</script>
 <style lang="scss">
     @import "~bulma/sass/utilities/_all";
 
@@ -59,6 +64,22 @@
         -moz-osx-font-smoothing: grayscale;
         text-align: center;
         color: #2c3e50;
+    }
+    a {
+        color: white;
+    }
+    a:visited {
+        color: white;
+    }
+
+    /* mouse over link */
+    a:hover {
+        color: white;
+    }
+
+    /* selected link */
+    a:active {
+        color: white;
     }
 
 </style>

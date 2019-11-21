@@ -2,12 +2,11 @@
 using EVEStandard;
 using EVEStandard.Enumerations;
 using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using IHostingEnvironment = Microsoft.AspNetCore.Hosting.IHostingEnvironment;
+using IWebHostEnvironment = Microsoft.AspNetCore.Hosting.IWebHostEnvironment;
 
 namespace mining_foreman_backend {
     public class Startup {
@@ -19,13 +18,6 @@ namespace mining_foreman_backend {
 
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services) {
-            // Add cookie authentication and set the login url
-            services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
-                .AddCookie(options => {
-                    options.LoginPath = "/Auth/Login";
-                    options.Cookie.HttpOnly = false;
-                });
-
             // Initialize the client
             var esiClient = new EVEStandardAPI(
                 "EVEStandard", // User agent
@@ -38,16 +30,27 @@ namespace mining_foreman_backend {
             // Register with DI container
             services.AddSingleton<EVEStandardAPI>(esiClient);
             services.AddSingleton<IHostedService, ESIService>();
+            // Add cookie authentication and set the login url
+            services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+                .AddCookie(options => {
+                    options.LoginPath = "/Auth/Login";
+                    options.Cookie.HttpOnly = false;
+                });
+            services.AddDistributedMemoryCache();
             services.AddSession();
             services.AddCors();
-            services.AddMvc();
+            services.AddControllers();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env) {
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env) {
             if (env.IsDevelopment()) {
                 app.UseDeveloperExceptionPage();
             }
+
+            app.UseSession();
+            //app.UseStaticFiles();
+            app.UseRouting();
 
             app.UseCors(builder =>
                 builder
@@ -57,12 +60,9 @@ namespace mining_foreman_backend {
                     .AllowCredentials()
             );
 
-
-            app.UseSession();
-            app.UseDefaultFiles();
-            app.UseStaticFiles();
             app.UseAuthentication();
-            app.UseMvc();
+
+            app.UseEndpoints(endpoints => { endpoints.MapControllers(); });
         }
     }
 }

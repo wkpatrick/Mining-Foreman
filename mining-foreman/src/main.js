@@ -15,7 +15,7 @@ Vue.config.productionTip = false;
 
 
 const routes = [
-    {path: '/', component: Index},
+    {path: '/', component: Index, name: 'home'},
     {
         path: '/fleet/:id',
         name: 'fleet',
