@@ -34,7 +34,7 @@
                 <template slot-scope="props">
                     <b-table-column width="40"><img :src="props.row.imgUrl"></b-table-column>
                     <b-table-column label="Ore">{{props.row.typeName}}</b-table-column>
-                    <b-table-column label="Quantity" field="quantity"> {{props.row.quantity}}</b-table-column>
+                    <b-table-column label="Quantity" field="quantity" numeric> {{formatNumber(props.row.quantity)}}</b-table-column>
                 </template>
             </b-table>
         </div>
@@ -76,8 +76,16 @@
                         </div>
                     </div>
                     <div class="column">
-                        <b-table v-if="fleetLoaded" :columns="columns"
-                                 :data="fleet.memberInfo.memberMiningLedger"></b-table>
+                        <b-table v-if="fleetLoaded" :data="fleet.memberInfo.memberMiningLedger">
+                            <template slot-scope="props">
+                                <b-table-column field="typeName" label="Ore" sortable>
+                                    {{props.row.typeName}}
+                                </b-table-column>
+                                <b-table-column field="quantity" label="Quantity" numeric sortable>
+                                    {{formatNumber(props.row.quantity)}}
+                                </b-table-column>
+                            </template>
+                        </b-table>
                     </div>
                 </div>
             </article>
@@ -96,9 +104,9 @@
                             {{ledger.typeName}}
                         </div>
                     </b-table-column>
-                    <b-table-column label="Quantity">
+                    <b-table-column label="Quantity" numeric>
                         <div v-for="ledger in props.row.memberMiningLedger" v-bind:key="ledger.miningFleetKedgerKey">
-                            {{ledger.quantity}}
+                            {{formatNumber(ledger.quantity)}}
                         </div>
                     </b-table-column>
                     <b-table-column label="Copy">
@@ -119,6 +127,7 @@
 <script>
     import JoinFleetModal from "@/components/Modals/JoinFleetModal";
     import LeaveFleetModal from "@/components/Modals/LeaveFleetModal";
+    import numeral from 'numeral';
 
     export default {
         name: "Fleet",
@@ -126,16 +135,6 @@
             return {
                 fleet: {},
                 fleetLoaded: false,
-                columns: [
-                    {
-                        field: 'typeName',
-                        label: 'Ore'
-                    },
-                    {
-                        field: 'quantity',
-                        label: 'Quantity'
-                    }
-                ],
                 fleetTimer: {}
             }
         },
@@ -218,6 +217,9 @@
                     component: LeaveFleetModal,
                     hasModalCard: true
                 })
+            },
+            formatNumber(number){
+                return numeral(number).format('0,0')
             },
             test() {
                 // eslint-disable-next-line no-console

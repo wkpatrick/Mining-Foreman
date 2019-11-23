@@ -2,15 +2,14 @@
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Hosting;
 using Serilog;
-using Serilog.Events;
 
 namespace mining_foreman_backend {
     public class Program {
         public static void Main(string[] args) {
             Log.Logger = new LoggerConfiguration()
-                .MinimumLevel.Debug()
+                .MinimumLevel.Information()
                 .Enrich.FromLogContext()
-                .WriteTo.Console(restrictedToMinimumLevel: LogEventLevel.Information)
+                .WriteTo.Console()
                 .WriteTo.File("mining-foreman.log")
                 .CreateLogger();
             try {

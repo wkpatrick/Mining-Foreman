@@ -25,7 +25,7 @@ namespace mining_foreman_backend.DataAccess {
                 JOIN MiningFleets mf ON mfm.MiningFleetKey = mf.MiningFleetKey
                 LEFT OUTER JOIN MiningFleetLedger mfl  ON mfl.FleetKey = mf.MiningFleetKey AND mfl.IsStartingLedger = true
                 AND mfl.LedgerCount = (SELECT MAX(LedgerCount) FROM MiningFleetLedger WHERE FleetKey = @MiningFleetKey AND UserKey = ml.UserKey)
-                AND mfl.TypeId = ml.TypeId
+                AND mfl.TypeId = ml.TypeId AND mfl.Date = ml.Date
                 LEFT OUTER JOIN TypeIdNames tin ON ml.TypeId = tin.TypeId
                 WHERE mf.MiningFleetKey = @MiningFleetKey AND ml.UserKey = @UserKey AND ml.Date >= mf.StartTime::date AND mfm.IsActive = true
                 GROUP BY ml.TypeId, tin.TypeName",
@@ -76,7 +76,7 @@ namespace mining_foreman_backend.DataAccess {
                         JOIN MiningFleets mf ON mfm.MiningFleetKey = mf.MiningFleetKey
                         LEFT OUTER JOIN MiningFleetLedger mfl  ON mfl.FleetKey = mf.MiningFleetKey AND mfl.IsStartingLedger = true
                         AND mfl.LedgerCount = (SELECT MAX(LedgerCount) FROM MiningFleetLedger WHERE FleetKey = @MiningFleetKey AND UserKey = ml.UserKey)
-                        AND mfl.TypeId = ml.TypeId
+                        AND mfl.TypeId = ml.TypeId AND mfl.Date = ml.Date
                         LEFT OUTER JOIN TypeIdNames tin ON ml.TypeId = tin.TypeId
                         WHERE mf.MiningFleetKey = @MiningFleetKey AND ml.Date >= mf.StartTime::date AND mfm.IsActive = true
                         GROUP BY ml.TypeId, tin.TypeName",
@@ -159,7 +159,7 @@ namespace mining_foreman_backend.DataAccess {
                     LEFT OUTER JOIN MiningFleetLedger mfl  ON mfl.FleetKey = mf.MiningFleetKey AND ml.TypeId = mfl.TypeId
                     AND mfl.IsStartingLedger = true 
                     AND mfl.LedgerCount = (SELECT COALESCE(MAX(LedgerCount), 0) FROM MiningFleetLedger WHERE FleetKey = mf.MiningFleetKey AND UserKey = @UserKey)
-                    AND mfl.TypeId = ml.TypeId
+                    AND mfl.TypeId = ml.TypeId AND mfl.Date = ml.Date
                     WHERE mf.MiningFleetKey = @MiningFleetKey AND ml.Date >= mf.StartTime::date AND ml.UserKey = @UserKey",
                     new {MiningFleetKey = miningFleetKey, UserKey = userKey});
             }
