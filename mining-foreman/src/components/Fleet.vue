@@ -91,7 +91,15 @@
             </article>
         </div>
         <div class="box">
-            <h1>Total Detailed Fleet Output</h1>
+            <h1 @click="test">Total Detailed Fleet Output
+                <b-tooltip
+                        label="Copy detailed fleet output to clipboard">
+                    <b-icon
+                            icon="clipboard-arrow-down-outline"
+                            size="is-small">
+                    </b-icon>
+                </b-tooltip>
+            </h1>
             <b-table v-if="fleetLoaded"
                      :data="fleet.fleetInfo.fleetMembers"
                      :narrowed="true">
@@ -108,14 +116,6 @@
                         <div v-for="ledger in props.row.memberMiningLedger" v-bind:key="ledger.miningFleetKedgerKey">
                             {{formatNumber(ledger.quantity)}}
                         </div>
-                    </b-table-column>
-                    <b-table-column label="Copy">
-                        <a @click="test">
-                            <b-icon
-                                    icon="clipboard-arrow-down-outline"
-                                    size="is-small">
-                            </b-icon>
-                        </a>
                     </b-table-column>
                 </template>
             </b-table>
