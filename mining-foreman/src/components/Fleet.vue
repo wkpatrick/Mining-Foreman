@@ -22,8 +22,12 @@
                         </div>
                         <div class="level-right">
                             <div class="level-item">
-                                <b-button type="is-info" v-if="showJoinFleetButton" @click="openJoinFleetModal">Join Fleet</b-button>
-                                <b-button type="is-info" v-if="showLeaveFleetButton" @click="openLeaveFleetModal">Leave Fleet</b-button>
+                                <b-button type="is-info" v-if="showJoinFleetButton" @click="openJoinFleetModal">Join
+                                    Fleet
+                                </b-button>
+                                <b-button type="is-info" v-if="showLeaveFleetButton" @click="openLeaveFleetModal">Leave
+                                    Fleet
+                                </b-button>
                             </div>
                         </div>
                     </div>
@@ -34,7 +38,8 @@
                 <template slot-scope="props">
                     <b-table-column width="40"><img :src="props.row.imgUrl"></b-table-column>
                     <b-table-column label="Ore">{{props.row.typeName}}</b-table-column>
-                    <b-table-column label="Quantity" field="quantity" numeric> {{formatNumber(props.row.quantity)}}</b-table-column>
+                    <b-table-column label="Quantity" field="quantity" numeric> {{formatNumber(props.row.quantity)}}
+                    </b-table-column>
                 </template>
             </b-table>
         </div>
@@ -154,7 +159,7 @@
                 }
                 return false;
             },
-            showJoinFleetButton: function(){
+            showJoinFleetButton: function () {
                 return !this.isUsersActiveFleet && this.fleet.fleetInfo.isActive
             },
             showLeaveFleetButton: function () {
@@ -211,14 +216,14 @@
                     hasModalCard: true
                 })
             },
-            openLeaveFleetModal(){
+            openLeaveFleetModal() {
                 this.$buefy.modal.open({
                     parent: this,
                     component: LeaveFleetModal,
                     hasModalCard: true
                 })
             },
-            formatNumber(number){
+            formatNumber(number) {
                 return numeral(number).format('0,0')
             },
             test() {

@@ -14,7 +14,8 @@ namespace mining_foreman_backend {
                 .CreateLogger();
             try {
                 Log.Information("Starting mining-foreman");
-                CreateHostBuilder(args).Build().Run();
+                CreateHostBuilder(args)
+                    .Build().Run();
             }
             catch (Exception ex) {
                 Log.Fatal(ex, "Application start-up failed");
@@ -27,6 +28,9 @@ namespace mining_foreman_backend {
         public static IHostBuilder CreateHostBuilder(string[] args) =>
             Host.CreateDefaultBuilder(args)
                 .UseSerilog()
-                .ConfigureWebHostDefaults(webBuilder => { webBuilder.UseStartup<Startup>(); });
+                .ConfigureWebHostDefaults(webBuilder => {
+                    webBuilder.UseUrls("http://localhost:5500");
+                    webBuilder.UseStartup<Startup>();
+                });
     }
 }

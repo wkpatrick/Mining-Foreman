@@ -15,7 +15,6 @@ namespace mining_foreman_backend.Controllers {
     [Authorize]
     //TODO: I think I can just delete this. Though it looks like a good example of how to use the proper cookie auth
     public class SSOController : Controller {
-        // GET
         private readonly EVEStandardAPI esiClient;
 
         public SSOController(EVEStandardAPI esiClient) {

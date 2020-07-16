@@ -50,6 +50,8 @@ namespace mining_foreman_backend {
 
             app.UseSession();
             //app.UseStaticFiles();
+            app.UseDefaultFiles();
+            app.UseStaticFiles();
             app.UseRouting();
 
             app.UseCors(builder =>
