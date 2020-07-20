@@ -18,7 +18,7 @@
 
     export default {
         name: 'Index',
-        components: { FleetTable},
+        components: {FleetTable},
         props: {
             msg: String,
             loggedIn: Boolean
@@ -34,6 +34,10 @@
             this.getFleets();
             this.getUser();
         },
+        destroyed: function () {
+            window.clearTimeout(this.fleetTimer);
+            this.fleetTimer = null;
+        },
         computed: {
             isLoggedIn() {
                 return this.$cookies.isKey('APIToken');
@@ -47,7 +51,7 @@
         },
         methods: {
             async getFleets() {
-                if(this.isLoggedIn){
+                if (this.isLoggedIn) {
                     try {
                         const response = await fetch('/api/fleet');
                         const data = await response.json();
@@ -56,14 +60,13 @@
                     } catch (error) {
                         //console.error(error)
                     }
-                }
-                else{
+                } else {
                     this.fleetTimer = setTimeout(this.getFleets, 1000);
                 }
 
             },
             async getUser() {
-                if(this.isLoggedIn){
+                if (this.isLoggedIn) {
                     //TODO: With JS you can .bind(this) so that it follows through. Need to do that here
                     let self = this;
                     fetch('/api/user', {
